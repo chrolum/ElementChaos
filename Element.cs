@@ -4,19 +4,53 @@ using System.Collections.Generic;
 namespace ElementChaos
 {
 
-    abstract class ElementBase
+    class ElementBase
     {
         //TODO: use tags system to implement the element mix action
         public HashSet<GameDef.Tags> tags;
+
+        public GameStatusManger gsm;
+        public GameDef.GameObj type;
         public int pos_h {get;set;}
         public int pos_v {get;set;}
 
         public int remain_time; // -1 no remain time
-        public abstract void AutoAction();
+        public int tmp_cnt; // for test;
+        public virtual void AutoAction()
+        {
 
-        public abstract bool canMix(ElementBase e);
-        public abstract void beMixSingle(ElementBase e);
-        public abstract void beMixMult(List<ElementBase> e);
+        }
+
+        public ElementBase()
+        {
+            this.gsm = GameStatusManger.GetInstance();
+        }
+        public virtual void checkNearElement() {}
+
+        // tool method
+
+        //check
+        protected bool isNear(GameDef.GameObj elementType)
+        {
+            var map = gsm.stage.running_stage_map;
+            var stage = gsm.stage;
+
+            //up
+            if (stage.isValidPos(pos_v+1, pos_h) && map[pos_v+1, pos_h] == elementType)
+                return true;
+            //down
+            if (stage.isValidPos(pos_v-1, pos_h) && map[pos_v-1, pos_h] == elementType)
+                return true;
+
+            //right
+            if (stage.isValidPos(pos_v, pos_h+1) && map[pos_v, pos_h+1] == elementType)
+                return true;
+            //left
+            if (stage.isValidPos(pos_v, pos_h-1) && map[pos_v, pos_h-1] == elementType)
+                return true;
+
+            return false;;
+        }
 
     }
     class FireElement : ElementBase
@@ -30,119 +64,89 @@ namespace ElementChaos
         }
         public override void AutoAction()
         {
-            throw new NotImplementedException();
+            if (remain_time == -1)
+                return;
         }
 
-        public override void beMixMult(List<ElementBase> e)
+        public override void checkNearElement()
         {
-            throw new NotImplementedException();
+            base.checkNearElement();
         }
 
-        public override void beMixSingle(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool canMix(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     class WoodElement : ElementBase
     {
         //TODO: implement
+        public int nearFireTime = 0;
         public override void AutoAction()
         {
-            throw new NotImplementedException();
+            //燃烧逻辑
+            if (remain_time != -1)
+            {
+                remain_time--;
+            }
+            else if (remain_time == 0)
+            {
+                gsm.stage.RemoveElement(pos_v, pos_h);
+            }
         }
 
-        public override void beMixMult(List<ElementBase> e)
+        public override void checkNearElement()
         {
-            throw new NotImplementedException();
-        }
+            //被火元素点燃的逻辑, 检查相接四格内有没有火元素
+            //remian_time由统一的管理器结算
+            if (remain_time != -1)
+                return;
 
-        public override void beMixSingle(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
+            //普通情况
+            if (!isNear(GameDef.GameObj.Fire) && nearFireTime == 0)
+                return;
 
-        public override bool canMix(ElementBase e)
-        {
-            throw new NotImplementedException();
+            if (isNear(GameDef.GameObj.Fire) && nearFireTime == GameDef.GlobalData.wood_tolerance_time) //开始燃烧
+            {
+                remain_time = GameDef.GlobalData.wood_fire_time;
+            }
+            else if (isNear(GameDef.GameObj.Fire) && nearFireTime != GameDef.GlobalData.wood_tolerance_time)
+            {
+                nearFireTime++;
+            }
+            else if (!isNear(GameDef.GameObj.Fire))//远离火源后，逐渐恢复耐受次数
+            {
+                nearFireTime--;
+            }
         }
     }
 
     class WaterElement : ElementBase
     {
-        //TODOL implement
+        //TODO implement
         public override void AutoAction()
         {
-            throw new NotImplementedException();
+            var gsm = GameStatusManger.GetInstance();
+            gsm.stage.GenerateElement(GameDef.GameObj.Water, pos_v++, pos_h);
         }
 
-        public override void beMixMult(List<ElementBase> e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void beMixSingle(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool canMix(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     class MudElement : ElementBase
     {
-        //TODOL implement
+        //TODO implement
         public override void AutoAction()
         {
             throw new NotImplementedException();
         }
 
-        public override void beMixMult(List<ElementBase> e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void beMixSingle(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool canMix(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     class WindElement : ElementBase
     {
-        //TODOL implement
+        //TODO implement
         public override void AutoAction()
         {
             throw new NotImplementedException();
         }
 
-        public override void beMixMult(List<ElementBase> e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void beMixSingle(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool canMix(ElementBase e)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     class ObsidianElement : ElementBase
@@ -153,19 +157,20 @@ namespace ElementChaos
             throw new NotImplementedException();
         }
 
-        public override void beMixMult(List<ElementBase> e)
-        {
-            throw new NotImplementedException();
-        }
+    }
 
-        public override void beMixSingle(ElementBase e)
+    class ElementFactory
+    {
+        public static ElementBase CreateElment(GameDef.GameObj e, int v, int h)
         {
-            throw new NotImplementedException();
-        }
+            switch (e)
+            {
+                case GameDef.GameObj.Fire:
+                    return new FireElement(v, h);
+                //TODO
+            }
 
-        public override bool canMix(ElementBase e)
-        {
-            return this.tags.Contains(GameDef.Tags.Immutable);
+            return new FireElement(0, 0);
         }
     }
 }
