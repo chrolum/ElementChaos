@@ -37,6 +37,13 @@ namespace ElementChaos
         //visiable control
 
         //
+		public bool canMoveTo(int v, int h)
+		{
+			if (stage.isValidPos(v, h) && stage.running_stage_map[v, h] == GameDef.GameObj.Air)
+				return true;
+
+			return false;
+		}
 
 	}
 }

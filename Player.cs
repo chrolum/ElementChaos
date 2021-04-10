@@ -8,6 +8,7 @@ namespace ElementChaos
     class Player
 	{
 
+		GameStatusManger gsm;
 		public int pos_v {get;set;}
 		public int pos_h {get;set;}
 
@@ -17,6 +18,7 @@ namespace ElementChaos
 			this.pos_v = _v;
 			this.pos_h = _h;
 			this.liftUpELemList = new List<ElementBase>();
+			this.gsm = GameStatusManger.GetInstance();
 		}
 
 		/*
@@ -49,8 +51,9 @@ namespace ElementChaos
 					break;
 			}
 
-			//TODO check move able
-
+			if (!gsm.canMoveTo(this.pos_v + dv, this.pos_h + dh))
+				return;
+			
 			this.pos_v += dv;
 			this.pos_h += dh;
 		}
@@ -68,5 +71,6 @@ namespace ElementChaos
 			this.liftUpELemList.Add(gsm.stage.elements_map[pos_v, pos_h]);
 			gsm.stage.running_stage_map[pos_v, pos_h] = GameDef.GameObj.Air;
 		}
+
 	}
 }
