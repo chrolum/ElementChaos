@@ -8,9 +8,8 @@ namespace GameDef
 	enum GameObj
 	{
 		GameObjStart = 0,
-
 		ElementStart,
-		Fire = 0,
+		Fire,
 		Wind,
 		Water,
 		FlowWater,
@@ -22,6 +21,7 @@ namespace GameDef
 		ImmutableWall,
 		Air,
 		Goal,
+		Player,
 	}
 
 	enum Action
@@ -53,6 +53,9 @@ namespace GameDef
 			{'#', GameDef.GameObj.ImmutableWall},
 			{' ', GameDef.GameObj.Air},
 			{'.', GameDef.GameObj.Goal},
+			{'*', GameDef.GameObj.Fire},
+			{'^', GameDef.GameObj.Wood},
+			{'~', GameDef.GameObj.Water},
 		};
 
 		public readonly static Dictionary<ConsoleKey, GameDef.Action> ActionMap = new Dictionary<ConsoleKey, GameDef.Action>()
@@ -70,17 +73,18 @@ namespace GameDef
 			{GameDef.GameObj.ImmutableWall, '#'},
 			{GameDef.GameObj.Fire, '*'},
 			{GameDef.GameObj.Wind, '@'},
-			{GameDef.GameObj.Mud, '^'},
+			{GameDef.GameObj.Mud, '-'},
 			{GameDef.GameObj.Obsidian, '&'},
 			{GameDef.GameObj.Glod, '$'},
 			{GameDef.GameObj.Water, '~'},
+			{GameDef.GameObj.Wood, '^'},
+			{GameDef.GameObj.Player, 'P'},
 		};
 
 		public readonly static int elemDictIdxBias = 1000;
 
-		public readonly static int wood_fire_time = 3;
+		//public readonly static int wood_fire_time = 3;
 		public readonly static int wood_tolerance_time = 3;
-
 	}
 	
 }

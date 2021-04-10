@@ -14,6 +14,8 @@ namespace ElementChaos
         public int pos_h {get;set;}
         public int pos_v {get;set;}
 
+        public bool isNew = true; // the new element will not auto action
+
         public int remain_time; // -1 no remain time
         public int tmp_cnt; // for test;
         public virtual void AutoAction()
@@ -21,8 +23,11 @@ namespace ElementChaos
 
         }
 
-        public ElementBase()
+        public ElementBase(int v, int h, int rt = -1)
         {
+            this.pos_h = h;
+            this.pos_v = v;
+            this.remain_time = rt;
             this.gsm = GameStatusManger.GetInstance();
         }
         public virtual void checkNearElement() {}
@@ -49,23 +54,25 @@ namespace ElementChaos
             if (stage.isValidPos(pos_v, pos_h-1) && map[pos_v, pos_h-1] == elementType)
                 return true;
 
-            return false;;
+            return false;
         }
 
     }
     class FireElement : ElementBase
     {
         //TODOL implement
-        public FireElement(int _v, int _h, int rt = -1)
-        {
-            this.pos_h = _h;
-            this.pos_v = _v;
-            this.remain_time = rt;
-        }
+        public FireElement(int v, int h, int rt = -1) : base(v, h, rt){}
         public override void AutoAction()
         {
             if (remain_time == -1)
                 return;
+            //燃烧逻辑
+            if (remain_time == 0)
+            {
+                gsm.stage.RemoveElement(pos_v, pos_h);
+                return;
+            }
+            remain_time--;
         }
 
         public override void checkNearElement()
@@ -78,36 +85,44 @@ namespace ElementChaos
     class WoodElement : ElementBase
     {
         //TODO: implement
+        public WoodElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.fire_tolerance_time = Tools.rand.Next(3,10);
+        }
         public int nearFireTime = 0;
+        public int fire_tolerance_time;
         public override void AutoAction()
         {
-            //燃烧逻辑
-            if (remain_time != -1)
-            {
-                remain_time--;
-            }
-            else if (remain_time == 0)
-            {
-                gsm.stage.RemoveElement(pos_v, pos_h);
-            }
-        }
+            if (remain_time == -1)
+                return;
 
-        public override void checkNearElement()
+			//    //燃烧逻辑
+			//    if (remain_time != -1)
+			//    {
+			//        remain_time--;
+			//    }
+			//    else if (remain_time == 0)
+			//    {
+			//        gsm.stage.RemoveElement(pos_v, pos_h);
+			//    }
+		}
+
+		public override void checkNearElement()
         {
             //被火元素点燃的逻辑, 检查相接四格内有没有火元素
-            //remian_time由统一的管理器结算
-            if (remain_time != -1)
-                return;
+            //remian_time由统一的管理器调用AutoAction继续结算
 
             //普通情况
             if (!isNear(GameDef.GameObj.Fire) && nearFireTime == 0)
                 return;
 
-            if (isNear(GameDef.GameObj.Fire) && nearFireTime == GameDef.GlobalData.wood_tolerance_time) //开始燃烧
+            if (isNear(GameDef.GameObj.Fire) && nearFireTime == this.fire_tolerance_time) //开始燃烧
             {
-                remain_time = GameDef.GlobalData.wood_fire_time;
+                //remain_time = GameDef.GlobalData.wood_fire_time;
+                gsm.stage.RemoveElement(pos_v, pos_h);
+                gsm.stage.GenerateElement(GameDef.GameObj.Fire, pos_v, pos_h, Tools.rand.Next(5,17));
             }
-            else if (isNear(GameDef.GameObj.Fire) && nearFireTime != GameDef.GlobalData.wood_tolerance_time)
+            else if (isNear(GameDef.GameObj.Fire) && nearFireTime != this.fire_tolerance_time)
             {
                 nearFireTime++;
             }
@@ -121,10 +136,11 @@ namespace ElementChaos
     class WaterElement : ElementBase
     {
         //TODO implement
+        public WaterElement(int v, int h, int rt = -1) : base(v, h, rt){}
         public override void AutoAction()
         {
             var gsm = GameStatusManger.GetInstance();
-            gsm.stage.GenerateElement(GameDef.GameObj.Water, pos_v++, pos_h);
+            gsm.stage.GenerateElement(GameDef.GameObj.FlowWater, pos_v++, pos_h);
         }
 
     }
@@ -132,6 +148,7 @@ namespace ElementChaos
     class MudElement : ElementBase
     {
         //TODO implement
+        public MudElement(int v, int h, int rt = -1) : base(v, h, rt){}
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -142,6 +159,7 @@ namespace ElementChaos
     class WindElement : ElementBase
     {
         //TODO implement
+        public WindElement(int v, int h, int rt = -1) : base(v, h, rt){}
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -152,6 +170,7 @@ namespace ElementChaos
     class ObsidianElement : ElementBase
     {
         //TODOL implement
+        public ObsidianElement(int v, int h, int rt = -1) : base(v, h, rt){}
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -159,14 +178,31 @@ namespace ElementChaos
 
     }
 
+    class FlowWaterElement : ElementBase
+    {
+        //TODO implement
+        public FlowWaterElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public override void AutoAction()
+        {
+            
+        }
+
+    }
+
     class ElementFactory
     {
-        public static ElementBase CreateElment(GameDef.GameObj e, int v, int h)
+        public static ElementBase CreateElment(GameDef.GameObj e, int v, int h, int rt = -1)
         {
             switch (e)
             {
                 case GameDef.GameObj.Fire:
-                    return new FireElement(v, h);
+                    return new FireElement(v, h, rt);
+                case GameDef.GameObj.Water:
+                    return new WaterElement(v, h, rt);
+                case GameDef.GameObj.FlowWater:
+                    return new FlowWaterElement(v, h, rt);
+                case GameDef.GameObj.Wood:
+                    return new WoodElement(v, h, rt);
                 //TODO
             }
 
