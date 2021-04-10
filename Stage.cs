@@ -7,11 +7,11 @@ namespace ElementChaos
 {
     class StageLoader
     {
-        public static Stage LoadStageFromFile(string fileName = "stage1")
+        public static Stage LoadStageFromFile(string filePath = @"../../../stage1")
         {
             
             Stage stage = new Stage();
-            System.IO.StreamReader file = new System.IO.StreamReader(fileName);
+            System.IO.StreamReader file = new System.IO.StreamReader(filePath);
             string line;
             //get map size
             line = file.ReadLine();
@@ -20,16 +20,23 @@ namespace ElementChaos
             int map_v_size = Int32.Parse(size[0]);
             int map_h_size = Int32.Parse(size[1]);
 
-            stage.Initial(map_v_size, map_h_size);
-
             int v_idx = 0;
             int h_idx = 0;
+            stage.h_size = map_h_size;
+            stage.v_size = map_v_size;
+
+            stage.running_stage_map = new GameDef.GameObj[map_v_size + 1, map_h_size + 1];
+            stage.orignal_stage_map = new GameDef.GameObj[map_v_size + 1, map_h_size + 1];
+            stage.elements_map = new ElementBase[map_v_size + 1, map_h_size + 1];
+            stage.activateElement = new List<ElementBase>();
+
             while ((line = file.ReadLine()) != null)
             {
-                GameDef.GameObj obj = GameDef.GameObj.Air;
 
                 foreach (char c in line)
                 {
+
+                    GameDef.GameObj obj = GameDef.GameObj.Air;
                     if (GameDef.GlobalData.char2GameObjDict.ContainsKey(c))
                     {
                         obj = GameDef.GlobalData.char2GameObjDict[c];
@@ -38,18 +45,21 @@ namespace ElementChaos
                     stage.running_stage_map[v_idx, h_idx] = obj;
                     h_idx++;
                 }
+                h_idx = 0;
                 v_idx++;
             }
+
+            stage.Initial();
 
             return stage;
         }
 
         //test
-        static void Main(string[] args)
-        {
-            var s = StageLoader.LoadStageFromFile();
-            s.test_print();
-        }
+        // static void Main(string[] args)
+        // {
+        //     var s = StageLoader.LoadStageFromFile();
+        //     s.test_print();
+        // }
     }
 
     class Stage
@@ -63,15 +73,23 @@ namespace ElementChaos
 		public List<ElementBase> activateElement;
 
 
-        int v_size;
-        int h_size;
+        public int v_size {get;set;}
+        public int h_size {get;set;}
 
-        public void Initial(int v_size, int h_size)
+        public void Initial()
         {
-            this.orignal_stage_map = new GameDef.GameObj[v_size, h_size];
-            this.running_stage_map = new GameDef.GameObj[v_size, h_size];
-            this.v_size = v_size;
-            this.h_size = h_size;
+            //根据关卡文件生成元素图
+            for (int r = 0; r < v_size; r++)
+            {
+                for (int c = 0; c < h_size; c++)
+                {
+                    if (!Tools.isElment(running_stage_map[r, c]))
+                        continue;
+                    var e = ElementFactory.CreateElment(running_stage_map[r, c], r, c);
+                    elements_map[r, c] = e;
+                    activateElement.Add(e);
+                }
+            }
         }
 
         public void test_print()
@@ -103,21 +121,48 @@ namespace ElementChaos
 
             return true;
         }
+        // element auto action logic
+        public void AutoSettleElement()
+        {
+            for (int r = 0; r < v_size; r++)
+            {
+                for (int c = 0; c < h_size; c++)
+                {
+                    var e = elements_map[r, c];
+                    if (e == null)
+                    {
+                        continue;
+                    }
 
-        public bool GenerateElement(GameDef.GameObj e, int v, int h)
+                    //新生成的元素不参与结算
+                    if (e.isNew)
+                    {
+                        e.isNew = false;
+                    }
+                    else
+                    {
+                        e.AutoAction();
+                        e.checkNearElement();
+                    }
+                }
+            }
+        }
+
+        // tool method area
+        public bool GenerateElement(GameDef.GameObj e, int v, int h, int rt = -1)
         {
             if (!Tools.isElment(e) || !isValidPos(v, h))
                 return false;
 
             this.running_stage_map[v, h] = e;
-            this.elements_map[v, h] = ElementFactory.CreateElment(e, v, h);
+            this.elements_map[v, h] = ElementFactory.CreateElment(e, v, h, rt);
             this.activateElement.Add(this.elements_map[v, h]);
             return true;
         }
 
         public bool isValidPos(int v, int h)
         {
-            return (v >= 0 && h >= 0 && v < this.v_size - 1 && v < this.h_size - 1);
+            return (v >= 0 && h >= 0 && v < this.v_size - 1 && h < this.h_size - 1);
         }
     }
 }
