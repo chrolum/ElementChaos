@@ -6,7 +6,7 @@ namespace ElementChaos
     {
         static void Main(string[] args)
         {
-            Game newGame = new Game(30, 40);
+            Game newGame = new Game();
             while(true)
             {
                 if (newGame.hasWin())

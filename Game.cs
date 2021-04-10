@@ -14,10 +14,11 @@ namespace ElementChaos
 	{
 		// store scence data
 
+		ConsoleCanvas canvas;
 		Stage stage;
 		GameStatusManger gsm;
-		private int SenceWidth, SenceHeigth;
 		private Player player;
+		private int SenceWidth, SenceHeigth;
 		private int gamePoint = 0;
 
 		private bool isDeath = false;
@@ -26,22 +27,27 @@ namespace ElementChaos
 		public bool hasFailed() {return this.isDeath;}
 		public bool hasWin() {return this.isWin;}
 
-		GameDef.GameObj[,] running_map;
-		char[,] draw_map;
+		// the draw buffer should be assign from canvas
+		char[,] draw_buffer;
+		ConsoleColor[,] color_buffer;
 		public int getPoint() {return this.gamePoint;}
 
 
-		public Game(int heigth, int width, int stage_no = 1)
+		public Game()
 		{
-			SenceWidth = width;
-			SenceHeigth = heigth;
-			player = new Player();
 			this.stage = StageLoader.LoadStageFromFile();
+			SenceWidth = stage.h_size;
+			SenceHeigth = stage.v_size;
+			player = new Player();
 			this.gsm = GameStatusManger.GetInstance();
 			// gsm.Inital();
 			this.gsm.stage = this.stage;
 
-			this.draw_map = new char[heigth, width];
+			// TODO: adopt the new draw system
+			// new draw buffer
+			canvas = new ConsoleCanvas(SenceWidth + 2, SenceHeigth+ 2);
+			draw_buffer = canvas.GetBuffer();
+			color_buffer = canvas.GetColorBuffer();
 			
 		}
 		public GameDef.Action GetUserAction()
@@ -76,8 +82,11 @@ namespace ElementChaos
 				default:
 					break;
 			}
+
+			//
+			gsm.stage.AutoSettleElement();
 			// move first, then check the new head position eating
-			System.Threading.Thread.Sleep(150);
+			System.Threading.Thread.Sleep(100);
 		}
 
 		public void Restart()
@@ -87,41 +96,49 @@ namespace ElementChaos
 		public void draw()
 		{
 			//TODO: 更换Canvas绘制系统
-			//TODO: UI组件？
-			//draw fix item
-			// Console.Clear();
-
-			// print map first
-			for (int r = 0; r < this.SenceHeigth; r++)
-			{
-				for (int c = 0; c < this.SenceWidth; c++)
-				{
-					draw_map[r,c] = GameDef.GlobalData.output[stage.running_stage_map[r, c]];
-				}
-			}
-
-			// print player
-
-			//print Animation
-
-			Console.SetCursorPosition(0, 0);
-			for (int r = 0; r < this.SenceHeigth; r++)
-			{
-				for (int c = 0; c < this.SenceWidth; c++)
-				{
-					Console.SetCursorPosition(c, r);
-					//TODO: 用stringbuilder拼接成完整的字符串后再打印
-					Console.Write("{0}", draw_map[r, c]);
-				}
-				Console.WriteLine();
-			}
-
-			//TODO: UI System
+			// new canvas system
+			canvas.ClearBuffer_DoubleBuffer();
+			// draw area
+			DrawMap();
+			DrawPlayer();
+			DrawAnimation();
+			DrawUI();
+			canvas.Refresh_DoubleBuffer();
 		}
 
-		
+		// draw method
+		public void DrawMap()
+		{
+			for (int r = 0; r < this.SenceHeigth; r++)
+			{
+				for (int c = 0; c < this.SenceWidth; c++)
+				{
+					var obj = stage.running_stage_map[r, c];
+					if (!GameDef.GlobalData.output.ContainsKey(obj))
+					{
+						obj = GameDef.GameObj.Air;
+					}
+					draw_buffer[r,c] = GameDef.GlobalData.output[obj];
+				}
+			}
+		}
 
-	
+		public void DrawPlayer()
+		{
+			draw_buffer[player.pos_v, player.pos_h] = GameDef.GlobalData.output[GameDef.GameObj.Player];
+		}
+
+		//TODO: UI组件？
+		public void DrawUI()
+		{
+
+		}
+
+		//TODO: draw animation
+		public void DrawAnimation()
+		{
+
+		}
 
 		private void AddPoint(GameDef.GameObj obj)
 		{
