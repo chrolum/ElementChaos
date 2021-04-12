@@ -347,10 +347,24 @@ namespace ElementChaos
         {
             int fireNearNum = getNearElementNum(GameDef.GameObj.Fire);
             int glodNearNum = getNearElementNum(GameDef.GameObj.Glod);
+            
             if (glodNearNum == 0)
                 return;
 
             if (fireNearNum >= this.maxFireNearNum)
+            {
+                return;
+            }
+
+            int airNearNum = getNearElementNum(GameDef.GameObj.Air);
+
+            if (airNearNum < GameDef.GlobalData.MinObsidianGenFireNeedAirNum)
+            {
+                return;
+            }
+
+            // TODO: 打火概率先写死，后期改成可配置概率
+            if (Tools.rand.Next(1, 101) < 90)
             {
                 return;
             }
@@ -392,7 +406,7 @@ namespace ElementChaos
             int v = Tools.UnPackCoords_V(PackCoords);
             int h = Tools.UnPackCoords_H(PackCoords);
 
-            return gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, v, h, Tools.rand.Next(1, 3));
+            return gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, v, h, 3);
         }
 
     }
@@ -444,7 +458,7 @@ namespace ElementChaos
                 case GameDef.GameObj.Obsidian:
                     return new ObsidianElement(v, h, rt);
                 case GameDef.GameObj.Log:
-                    var ne = new WoodElement(v, h, 20, 20);
+                    var ne = new WoodElement(v, h, 100, 15);
                     ne.type = GameDef.GameObj.Log; //TODO临时基于木元素实现的耐烧木头，后期要改掉 
                     return ne;
                 //TODO

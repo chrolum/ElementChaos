@@ -126,6 +126,7 @@ namespace GameDef
 		//public readonly static int wood_fire_time = 3;
 		public readonly static int wood_tolerance_time = 3;
 
+		public readonly static int MinObsidianGenFireNeedAirNum = 3;
 		public readonly static int maxLiftUpNum = 1;
 	}
 	
