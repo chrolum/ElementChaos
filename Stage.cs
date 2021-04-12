@@ -2,6 +2,7 @@ using System;
 
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace ElementChaos
 {
@@ -116,6 +117,7 @@ namespace ElementChaos
             if (elements_map[v, h] != null)
             {
                 this.activateElement.Remove(this.elements_map[v, h]);
+                Debug.WriteLine("Remove {0} element at ({1}, {2})", this.elements_map[v, h].name, v, h);
             }
             this.elements_map[v, h] = null;
 
@@ -153,18 +155,63 @@ namespace ElementChaos
         // tool method area
         public bool GenerateNewElement(GameDef.GameObj e, int v, int h, int rt = -1)
         {
+            
+
             if (!Tools.isElment(e) || !isValidPos(v, h))
+            {
+                Debug.WriteLine("[Stage] invaild element or pos!");
+                return false;
+            }
+
+            // 流动水只能覆盖空气或者火
+            if (!isAirAt(v, h) && !isFire(v, h))
                 return false;
 
+            // 先清理原位置的火
+            this.RemoveElement(v, h);
+
+            // 生成流动水
             this.running_stage_map[v, h] = e;
             this.elements_map[v, h] = ElementFactory.CreateElment(e, v, h, rt);
             this.activateElement.Add(this.elements_map[v, h]);
             return true;
         }
 
+        public bool PushExistElementAt(ElementBase element, int v, int h)
+        {
+            if (element == null || !isValidPos(v, h) || !isAirAt(v, h))
+                return false;
+
+            element.pos_v = v;
+            element.pos_h = h;
+            this.running_stage_map[v, h] = element.type;
+            this.elements_map[v, h] = element;
+            this.activateElement.Add(element);
+            Debug.WriteLine("[Stage] Push Down {0} elment at ({1}, {2})", element.name, v, h);
+            return true;
+        }
+
         public bool isValidPos(int v, int h)
         {
             return (v >= 0 && h >= 0 && v < this.v_size - 1 && h < this.h_size - 1);
+        }
+
+        public bool isSpecifyGameObjAt(GameDef.GameObj obj, int v, int h)
+        {
+            if (!isValidPos(v, h))
+                return false;
+
+            return running_stage_map[v, h] == obj;
+        }
+
+        public bool isAirAt(int v, int h)
+        {
+            return isSpecifyGameObjAt(GameDef.GameObj.Air, v ,h);
+        }
+
+        public bool isFire(int v, int h)
+        {
+            return isSpecifyGameObjAt(GameDef.GameObj.Fire, v, h);
         }
     }
 }

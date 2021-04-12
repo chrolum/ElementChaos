@@ -35,6 +35,7 @@ namespace ElementChaos
 
 		public Stage stage;
         //visiable control
+		public Player player;
 
         //
 		public bool canMoveTo(int v, int h)

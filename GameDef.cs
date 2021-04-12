@@ -60,6 +60,16 @@ namespace GameDef
 
 	}
 
+	enum Towards
+	{
+		Left = 0,
+		Right,
+
+		Up,
+
+		Down,
+	}
+
 	class GlobalData
 	{
 		public readonly static Dictionary<char, GameDef.GameObj> char2GameObjDict = new Dictionary<char, GameObj>(){
@@ -98,10 +108,20 @@ namespace GameDef
 			{GameDef.GameObj.FlowWater, '~'},
 		};
 
+		public readonly static Dictionary<GameDef.Towards, GameDef.WaterType> waterTypeMapByPlayerTowards = new Dictionary<Towards, WaterType>()
+		{
+			{GameDef.Towards.Left, GameDef.WaterType.Left},
+			{GameDef.Towards.Right, GameDef.WaterType.Right},
+			{GameDef.Towards.Down, GameDef.WaterType.Down},
+			{GameDef.Towards.Up, GameDef.WaterType.Up},
+		};	
+
 		public readonly static int elemDictIdxBias = 1000;
 
 		//public readonly static int wood_fire_time = 3;
 		public readonly static int wood_tolerance_time = 3;
+
+		public readonly static int maxLiftUpNum = 1;
 	}
 	
 }

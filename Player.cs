@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace ElementChaos
 {
@@ -12,12 +13,14 @@ namespace ElementChaos
 		public int pos_v {get;set;}
 		public int pos_h {get;set;}
 
-		public List<ElementBase> liftUpELemList;
+		public Stack<ElementBase> liftUpELemStack;
+
+		public GameDef.Towards towards;
 		public Player(int _h = 7, int _v = 7)
 		{
 			this.pos_v = _v;
 			this.pos_h = _h;
-			this.liftUpELemList = new List<ElementBase>();
+			this.liftUpELemStack = new Stack<ElementBase>();
 			this.gsm = GameStatusManger.GetInstance();
 		}
 
@@ -30,20 +33,24 @@ namespace ElementChaos
 		{
 			int dh = 0, dv = 0;
 
-
+			GameDef.Towards towards = 0;;
 			switch (d)
 			{
 				case GameDef.Action.left:
 					dh = -1;
+					towards = GameDef.Towards.Left;
 					break;
 				case GameDef.Action.Right:
 					dh = 1;
+					towards = GameDef.Towards.Right;
 					break;
 				case GameDef.Action.Up:
 					dv = -1;
+					towards = GameDef.Towards.Up;
 					break;
 				case GameDef.Action.Down:
 					dv = 1;
+					towards = GameDef.Towards.Down;
 					break;
 				default:
 					dv = 0;
@@ -51,6 +58,7 @@ namespace ElementChaos
 					break;
 			}
 
+			this.towards = towards;
 			if (!gsm.canMoveTo(this.pos_v + dv, this.pos_h + dh))
 				return;
 			
@@ -61,16 +69,79 @@ namespace ElementChaos
 		public void LiftUpElement()
 		{
 			//TODO
-			var gsm = GameStatusManger.GetInstance();
-
-			if (!Tools.isElment(gsm.stage.running_stage_map[pos_v, pos_h]))
+			int elementPos_v, elementPos_h;
+			if (!GetNewPosByPlayerTowards(out elementPos_v, out elementPos_h))
 			{
 				return;
 			}
 
-			this.liftUpELemList.Add(gsm.stage.elements_map[pos_v, pos_h]);
-			gsm.stage.running_stage_map[pos_v, pos_h] = GameDef.GameObj.Air;
+			var e_tpye = gsm.stage.running_stage_map[elementPos_v, elementPos_h];
+
+			if (!Tools.isElment(e_tpye) 
+				|| liftUpELemStack.Count >= GameDef.GlobalData.maxLiftUpNum
+				|| e_tpye == GameDef.GameObj.FlowWater)
+			{
+				Debug.WriteLine("Lift at ({0}, {1}) Failed, bag num {2}, bag max size {3}", 
+					elementPos_v, elementPos_h,
+					liftUpELemStack.Count, GameDef.GlobalData.maxLiftUpNum);
+				return;
+			}
+
+			var e = gsm.stage.elements_map[elementPos_v, elementPos_h];
+			this.liftUpELemStack.Push(e);
+			gsm.stage.RemoveElement(elementPos_v, elementPos_h);
+			e.BeLiftedUp();
+			
+			Debug.WriteLine("[Player] Lift up element at ({0}, {1})", elementPos_v, elementPos_h);
 		}
 
+		public void PushDownElement()
+		{
+			if (liftUpELemStack.Count == 0)
+			{
+				Debug.WriteLine("[Player] Emtyp lifted-up element bag, push down nothing");
+				return;
+			}
+			var e = liftUpELemStack.Peek();
+			
+			int new_v, new_h;
+			GetNewPosByPlayerTowards(out new_v, out new_h);
+
+
+			if (!gsm.stage.PushExistElementAt(e, new_v, new_h))			
+			{
+				Debug.WriteLine("[Player] push down {0} element failed at ({1}, {2})", e.name, new_v, new_h);
+				return;
+			}
+
+			liftUpELemStack.Pop();
+			e.AfterPutDown();
+		}
+
+		private bool GetNewPosByPlayerTowards(out int new_v, out int new_h)
+		{
+			int dv = 0, dh = 0;
+			
+			switch (this.towards)
+			{
+				case GameDef.Towards.Left:
+					dh -= 1;
+					break;
+				case GameDef.Towards.Right:
+					dh += 1;
+					break;
+				case GameDef.Towards.Down:
+					dv += 1;
+					break;
+				case GameDef.Towards.Up:
+					dv -= 1;
+					break;
+			}
+
+			new_v = this.pos_v + dv;
+			new_h = this.pos_h + dh;
+	
+			return true;
+		}
 	}
 }

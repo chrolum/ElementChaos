@@ -161,12 +161,12 @@ namespace ElementChaos
         //TODO implement
         public GameDef.WaterType water_type;
         public int flow_stop_distance;
-        public int curr_flow_distance = 1;
+        public int curr_flow_distance = 1; // 0表示在水源代替成流动水
 
         // 该list用于水源被移除后，流动水消失的逻辑
         public List<FlowWaterElement> childrenFlowWaterList;
         public WaterElement(int v, int h, int rt = -1, 
-            GameDef.WaterType wt = GameDef.WaterType.NoFlow, int fd = 3) : base(v, h, rt)
+            GameDef.WaterType wt = GameDef.WaterType.NoFlow, int fd = 4) : base(v, h, rt)
         {
             this.water_type = wt;
             this.flow_stop_distance = fd;
@@ -193,10 +193,10 @@ namespace ElementChaos
             switch (this.water_type)
             {
                 case GameDef.WaterType.Left:
-                    dh += curr_flow_distance;
+                    dh -= curr_flow_distance;
                     break;
                 case GameDef.WaterType.Right:
-                    dh -= curr_flow_distance;
+                    dh += curr_flow_distance;
                     break;
                 case GameDef.WaterType.Down:
                     dv += curr_flow_distance;
@@ -239,7 +239,10 @@ namespace ElementChaos
                 Debug.WriteLine("[WaterE] remove flow water at ({0}, {1})", e.pos_v, e.pos_h);
             } 
             gsm.stage.RemoveElement(this.pos_v, this.pos_h);
+
+            // 重设元素所有的状态
             this.childrenFlowWaterList.Clear();
+            this.curr_flow_distance = 1;
         }
     }
 

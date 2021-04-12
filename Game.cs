@@ -42,6 +42,7 @@ namespace ElementChaos
 			this.gsm = GameStatusManger.GetInstance();
 			// gsm.Inital();
 			this.gsm.stage = this.stage;
+			this.gsm.player = player;
 
 			// TODO: adopt the new draw system
 			// new draw buffer
@@ -78,6 +79,9 @@ namespace ElementChaos
 					return;
 				case GameDef.Action.LiftUp:
 					player.LiftUpElement();
+					break;
+				case GameDef.Action.PutDown:
+					player.PushDownElement();
 					break;
 				default:
 					break;
