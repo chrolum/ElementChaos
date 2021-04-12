@@ -49,6 +49,8 @@ namespace ElementChaos
 			canvas = new ConsoleCanvas(SenceWidth + 2, SenceHeigth+ 2);
 			draw_buffer = canvas.GetBuffer();
 			color_buffer = canvas.GetColorBuffer();
+
+			BulletManager.gsm = this.gsm;
 			
 		}
 		public GameDef.Action GetUserAction()
@@ -96,7 +98,8 @@ namespace ElementChaos
 			//
 			gsm.stage.AutoSettleElement();
 			// move first, then check the new head position eating
-			System.Threading.Thread.Sleep(100);
+			BulletManager.checkAllBullet();
+			System.Threading.Thread.Sleep(50);
 		}
 
 		public void Restart()
@@ -110,9 +113,9 @@ namespace ElementChaos
 			canvas.ClearBuffer_DoubleBuffer();
 			// draw area
 			DrawMap();
-			DrawPlayer();
 			DrawAnimation();
 			DrawUI();
+			DrawPlayer();
 			canvas.Refresh_DoubleBuffer();
 		}
 
@@ -147,7 +150,11 @@ namespace ElementChaos
 		//TODO: draw animation
 		public void DrawAnimation()
 		{
-
+			//Bullet
+			foreach (var b in BulletManager.activeBulletList)
+			{
+				draw_buffer[b.pos_v, b.pos_h] = 'o';
+			}
 		}
 
 		private void AddPoint(GameDef.GameObj obj)

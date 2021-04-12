@@ -181,7 +181,7 @@ namespace ElementChaos
 			if (equipSkill == null)
 				return false;
 
-			if (equipSkill.UseSkill(this.towards) == GameDef.UseSkillStatus.RunOutTimes)
+			if (equipSkill.UseSkill(this.towards, this.pos_v, this.pos_h) == GameDef.UseSkillStatus.RunOutTimes)
 			{
 				equipSkill = null;
 				return true;
