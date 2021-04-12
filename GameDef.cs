@@ -17,6 +17,7 @@ namespace GameDef
 		Mud,
 		Glod,
 		Obsidian,
+		Log,
 		ElementEnd,
 		ImmutableWall,
 		Air,
@@ -79,6 +80,9 @@ namespace GameDef
 			{'*', GameDef.GameObj.Fire},
 			{'^', GameDef.GameObj.Wood},
 			{'W', GameDef.GameObj.Water},
+			{'$', GameObj.Glod},
+			{'&', GameObj.Obsidian},
+			{'L', GameObj.Log}
 		};
 
 		public readonly static Dictionary<ConsoleKey, GameDef.Action> ActionMap = new Dictionary<ConsoleKey, GameDef.Action>()
@@ -100,12 +104,13 @@ namespace GameDef
 			{GameDef.GameObj.Fire, '*'},
 			{GameDef.GameObj.Wind, '@'},
 			{GameDef.GameObj.Mud, '-'},
-			{GameDef.GameObj.Obsidian, '&'},
 			{GameDef.GameObj.Glod, '$'},
 			{GameDef.GameObj.Water, 'W'},
 			{GameDef.GameObj.Wood, '^'},
 			{GameDef.GameObj.Player, 'P'},
 			{GameDef.GameObj.FlowWater, '~'},
+			{GameDef.GameObj.Obsidian, '&'},
+			{GameDef.GameObj.Log, 'L'},
 		};
 
 		public readonly static Dictionary<GameDef.Towards, GameDef.WaterType> waterTypeMapByPlayerTowards = new Dictionary<Towards, WaterType>()

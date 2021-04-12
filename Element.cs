@@ -53,7 +53,7 @@ namespace ElementChaos
         *   X o X
         *     X
         */
-        protected bool isNear(GameDef.GameObj elementType)
+        protected bool isAdjacency(GameDef.GameObj elementType)
         {
             var map = gsm.stage.running_stage_map;
             var stage = gsm.stage;
@@ -74,6 +74,51 @@ namespace ElementChaos
 
             return false;
         }
+
+        //check
+        /*
+        *   X X X
+        *   X o X
+        *   X X X
+        */
+        protected bool isNear(GameDef.GameObj elementType)
+        {
+            var map = gsm.stage.running_stage_map;
+            var stage = gsm.stage;
+            
+            for (int r = this.pos_v -1; r < this.pos_v + 3; r++)
+            {
+                for (int c = this.pos_h; c < this.pos_h + 3; c++)
+                {
+                    if (stage.isValidPos(r, c) && map[r, c] == elementType)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        protected int getNearElementNum(GameDef.GameObj elementType)
+        {
+            var map = gsm.stage.running_stage_map;
+            var stage = gsm.stage;
+            
+            int num = 0;
+
+            for (int r = this.pos_v -1; r <= this.pos_v + 1; r++)
+            {
+                for (int c = this.pos_h -1; c <= this.pos_h + 1; c++)
+                {
+                    if (stage.isValidPos(r, c) && map[r, c] == elementType)
+                    {
+                        num++;
+                        continue;
+                    }
+                }
+            }
+            return num;
+        }
+
+
 
     }
     class FireElement : ElementBase
@@ -106,10 +151,17 @@ namespace ElementChaos
     class WoodElement : ElementBase
     {
         //TODO: implement
-        public WoodElement(int v, int h, int rt = -1) : base(v, h, rt)
+        public WoodElement(int v, int h, int rt = -1, int ftt = -1) : base(v, h, rt)
         {
             this.name = "Wood";
-            this.fire_tolerance_time = Tools.rand.Next(3,10);
+            if (ftt == -1)
+            {
+                this.fire_tolerance_time = Tools.rand.Next(3,10);
+            }
+            else
+            {
+                this.fire_tolerance_time = ftt;
+            }
             this.type = GameDef.GameObj.Wood;
         }
         public int nearFireTime = 0;
@@ -136,20 +188,20 @@ namespace ElementChaos
             //remian_time由统一的管理器调用AutoAction继续结算
 
             //普通情况
-            if (!isNear(GameDef.GameObj.Fire) && nearFireTime == 0)
+            if (!isAdjacency(GameDef.GameObj.Fire) && nearFireTime == 0)
                 return;
 
-            if (isNear(GameDef.GameObj.Fire) && nearFireTime == this.fire_tolerance_time) //开始燃烧
+            if (isAdjacency(GameDef.GameObj.Fire) && nearFireTime == this.fire_tolerance_time) //开始燃烧
             {
                 //remain_time = GameDef.GlobalData.wood_fire_time;
                 gsm.stage.RemoveElement(pos_v, pos_h);
                 gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, pos_v, pos_h, Tools.rand.Next(5,17));
             }
-            else if (isNear(GameDef.GameObj.Fire) && nearFireTime != this.fire_tolerance_time)
+            else if (isAdjacency(GameDef.GameObj.Fire) && nearFireTime != this.fire_tolerance_time)
             {
                 nearFireTime++;
             }
-            else if (!isNear(GameDef.GameObj.Fire))//远离火源后，逐渐恢复耐受次数
+            else if (!isAdjacency(GameDef.GameObj.Fire))//远离火源后，逐渐恢复耐受次数
             {
                 nearFireTime--;
             }
@@ -279,14 +331,68 @@ namespace ElementChaos
     class ObsidianElement : ElementBase
     {
         //TODOL implement
-        public ObsidianElement(int v, int h, int rt = -1) : base(v, h, rt)
+        private int maxFireNearNum = 0;
+        public ObsidianElement(int v, int h, int rt = -1, int maxFireNearNum = 1) : base(v, h, rt)
         {
             this.name = "Obsidian";
             this.type = GameDef.GameObj.Obsidian;
+            this.maxFireNearNum = maxFireNearNum;
         }
         public override void AutoAction()
         {
-            throw new NotImplementedException();
+            
+        }
+
+        public override void checkNearElement()
+        {
+            int fireNearNum = getNearElementNum(GameDef.GameObj.Fire);
+            int glodNearNum = getNearElementNum(GameDef.GameObj.Glod);
+            if (glodNearNum == 0)
+                return;
+
+            if (fireNearNum >= this.maxFireNearNum)
+            {
+                return;
+            }
+            
+            if (!GenerateRandomFireNearBy())
+            {
+                return;
+            }
+            fireNearNum++;
+        }
+
+        private bool GenerateRandomFireNearBy()
+        {
+            var map = gsm.stage.running_stage_map;
+            var stage = gsm.stage;
+            
+            List<int> availablePosList = new List<int>();
+
+            for (int r = this.pos_v - 1; r <= this.pos_v + 1; r++)
+            {
+                for (int c = this.pos_h - 1; c <= this.pos_h + 1; c++)
+                {
+                    if (stage.isValidPos(r, c) && map[r, c] == GameDef.GameObj.Air
+                        && !(r == pos_v && c == pos_h))
+                    {
+                        availablePosList.Add(Tools.PackCoords(r, c));
+                    }
+                }
+            }
+
+            if (availablePosList.Count == 0)
+            {
+                Debug.WriteLine("[Obsidian] no available position to create fire");
+                return false;
+            }
+
+            int PackCoords = availablePosList[Tools.rand.Next(0, availablePosList.Count)];
+
+            int v = Tools.UnPackCoords_V(PackCoords);
+            int h = Tools.UnPackCoords_H(PackCoords);
+
+            return gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, v, h, Tools.rand.Next(1, 3));
         }
 
     }
@@ -306,6 +412,19 @@ namespace ElementChaos
 
     }
 
+        class GlodElement : ElementBase
+    {
+        public GlodElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.name = "Glod";
+            this.type = GameDef.GameObj.Glod;
+        }
+        public override void AutoAction()
+        {
+            
+        }
+    }
+
     class ElementFactory
     {
         public static ElementBase CreateElment(GameDef.GameObj e, int v, int h, int rt = -1)
@@ -320,6 +439,14 @@ namespace ElementChaos
                     return new FlowWaterElement(v, h, rt);
                 case GameDef.GameObj.Wood:
                     return new WoodElement(v, h, rt);
+                case GameDef.GameObj.Glod:
+                    return new GlodElement(v, h, rt);
+                case GameDef.GameObj.Obsidian:
+                    return new ObsidianElement(v, h, rt);
+                case GameDef.GameObj.Log:
+                    var ne = new WoodElement(v, h, 20, 20);
+                    ne.type = GameDef.GameObj.Log; //TODO临时基于木元素实现的耐烧木头，后期要改掉 
+                    return ne;
                 //TODO
             }
 

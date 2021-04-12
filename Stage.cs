@@ -163,17 +163,17 @@ namespace ElementChaos
                 return false;
             }
 
-            // 流动水只能覆盖空气或者火
+            // 只能覆盖空气或者火
             if (!isAirAt(v, h) && !isFire(v, h))
                 return false;
 
-            // 先清理原位置的火
+            // 先清理原位置的
             this.RemoveElement(v, h);
 
-            // 生成流动水
             this.running_stage_map[v, h] = e;
             this.elements_map[v, h] = ElementFactory.CreateElment(e, v, h, rt);
             this.activateElement.Add(this.elements_map[v, h]);
+            Debug.WriteLine("[Stage] generate new {0} element at ({1}, {2})", this.elements_map[v, h].name, v, h);
             return true;
         }
 
