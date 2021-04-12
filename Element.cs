@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ElementChaos
 {
@@ -19,6 +20,7 @@ namespace ElementChaos
         public int remain_time; // -1 no remain time
         public int tmp_cnt; // for test;
         
+        public string name = "defalut";
         // TODO: 将结算剩余存在时间的逻辑移动到这里
         public virtual void AutoAction()
         {
@@ -77,7 +79,10 @@ namespace ElementChaos
     class FireElement : ElementBase
     {
         //TODOL implement
-        public FireElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public FireElement(int v, int h, int rt = -1) : base(v, h, rt){
+            this.name = "Fire";
+            this.type = GameDef.GameObj.Fire;
+        }
         public override void AutoAction()
         {
             if (remain_time == -1)
@@ -103,7 +108,9 @@ namespace ElementChaos
         //TODO: implement
         public WoodElement(int v, int h, int rt = -1) : base(v, h, rt)
         {
+            this.name = "Wood";
             this.fire_tolerance_time = Tools.rand.Next(3,10);
+            this.type = GameDef.GameObj.Wood;
         }
         public int nearFireTime = 0;
         public int fire_tolerance_time;
@@ -154,25 +161,29 @@ namespace ElementChaos
         //TODO implement
         public GameDef.WaterType water_type;
         public int flow_stop_distance;
-        public int curr_flow_distance = 0;
+        public int curr_flow_distance = 1;
 
         // 该list用于水源被移除后，流动水消失的逻辑
         public List<FlowWaterElement> childrenFlowWaterList;
         public WaterElement(int v, int h, int rt = -1, 
-            GameDef.WaterType wt = GameDef.WaterType.NoFlow, int fd = 0) : base(v, h, rt)
+            GameDef.WaterType wt = GameDef.WaterType.NoFlow, int fd = 3) : base(v, h, rt)
         {
             this.water_type = wt;
             this.flow_stop_distance = fd;
+            this.name = "Water";
             childrenFlowWaterList = new List<FlowWaterElement>();
+            this.type = GameDef.GameObj.Water;
         }
         public override void AutoAction()
         {
-            if (this.water_type == GameDef.WaterType.NoFlow 
-                || curr_flow_distance == flow_stop_distance)
+            if (this.water_type == GameDef.WaterType.NoFlow
+             || curr_flow_distance == flow_stop_distance)
+            {
                 return;
+            }
 
             //TODO: 暂时设置为水源被拾取后，全部流动水会瞬间消失
-
+            GenerateFlowWater();
             // gsm.stage.GenerateNewElement(GameDef.GameObj.FlowWater, pos_v++, pos_h);
         }
 
@@ -202,6 +213,8 @@ namespace ElementChaos
             {
             
                 this.childrenFlowWaterList.Add((FlowWaterElement)gsm.stage.elements_map[pos_v + dv, pos_h + dh]);
+                curr_flow_distance++;
+                Debug.WriteLine("[WaterE] Generating flow water at ({0}, {1})", pos_v + dv, pos_h + dh);
                 return true;
             }
 
@@ -212,8 +225,9 @@ namespace ElementChaos
         
         public override void AfterPutDown()
         {
-            //TODO: 被重新放置后, 改变水流方向
-
+            //水源被重新放置后, 改变水流方向
+            // 流动水的生成由AutoAction实现
+            this.water_type = GameDef.GlobalData.waterTypeMapByPlayerTowards[gsm.player.towards];    
         }
 
         public override void BeLiftedUp()
@@ -222,8 +236,9 @@ namespace ElementChaos
             {
                 var e = childrenFlowWaterList[i];
                 gsm.stage.RemoveElement(e.pos_v, e.pos_h);
+                Debug.WriteLine("[WaterE] remove flow water at ({0}, {1})", e.pos_v, e.pos_h);
             } 
-
+            gsm.stage.RemoveElement(this.pos_v, this.pos_h);
             this.childrenFlowWaterList.Clear();
         }
     }
@@ -231,7 +246,11 @@ namespace ElementChaos
     class MudElement : ElementBase
     {
         //TODO implement
-        public MudElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public MudElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.name = "Mud";
+            this.type = GameDef.GameObj.Mud;
+        }
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -242,7 +261,11 @@ namespace ElementChaos
     class WindElement : ElementBase
     {
         //TODO implement
-        public WindElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public WindElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.name = "Wind";
+            this.type = GameDef.GameObj.Wind;
+        }
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -253,7 +276,11 @@ namespace ElementChaos
     class ObsidianElement : ElementBase
     {
         //TODOL implement
-        public ObsidianElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public ObsidianElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.name = "Obsidian";
+            this.type = GameDef.GameObj.Obsidian;
+        }
         public override void AutoAction()
         {
             throw new NotImplementedException();
@@ -264,7 +291,11 @@ namespace ElementChaos
     class FlowWaterElement : ElementBase
     {
         //TODO implement
-        public FlowWaterElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public FlowWaterElement(int v, int h, int rt = -1) : base(v, h, rt)
+        {
+            this.name = "FlowWater";
+            this.type = GameDef.GameObj.FlowWater;
+        }
         public override void AutoAction()
         {
             
