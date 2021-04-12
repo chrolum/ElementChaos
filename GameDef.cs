@@ -32,6 +32,7 @@ namespace GameDef
 		Down,
 
 		LiftUp,
+		PutDown,
 		RESTART,
 		NOACTION
 	}
@@ -47,6 +48,18 @@ namespace GameDef
 		Air,
         Immutable,
     }
+
+	enum WaterType
+	{
+		NoFlow = 0,
+		Left,
+		Right,
+		Up,
+		Down,
+		Center,
+
+	}
+
 	class GlobalData
 	{
 		public readonly static Dictionary<char, GameDef.GameObj> char2GameObjDict = new Dictionary<char, GameObj>(){
@@ -55,7 +68,7 @@ namespace GameDef
 			{'.', GameDef.GameObj.Goal},
 			{'*', GameDef.GameObj.Fire},
 			{'^', GameDef.GameObj.Wood},
-			{'~', GameDef.GameObj.Water},
+			{'W', GameDef.GameObj.Water},
 		};
 
 		public readonly static Dictionary<ConsoleKey, GameDef.Action> ActionMap = new Dictionary<ConsoleKey, GameDef.Action>()
@@ -64,7 +77,10 @@ namespace GameDef
 			{ConsoleKey.DownArrow, GameDef.Action.Down},
 			{ConsoleKey.LeftArrow, GameDef.Action.left},
 			{ConsoleKey.RightArrow, GameDef.Action.Right},
-			{ConsoleKey.R, GameDef.Action.RESTART}
+			{ConsoleKey.R, GameDef.Action.RESTART},
+			{ConsoleKey.X, GameDef.Action.LiftUp},
+			{ConsoleKey.C, GameDef.Action.PutDown}
+			
 		};
 
 		public readonly static Dictionary<GameDef.GameObj, char> output = new Dictionary<GameDef.GameObj, char>()
@@ -76,9 +92,10 @@ namespace GameDef
 			{GameDef.GameObj.Mud, '-'},
 			{GameDef.GameObj.Obsidian, '&'},
 			{GameDef.GameObj.Glod, '$'},
-			{GameDef.GameObj.Water, '~'},
+			{GameDef.GameObj.Water, 'W'},
 			{GameDef.GameObj.Wood, '^'},
 			{GameDef.GameObj.Player, 'P'},
+			{GameDef.GameObj.FlowWater, '~'},
 		};
 
 		public readonly static int elemDictIdxBias = 1000;

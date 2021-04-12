@@ -18,10 +18,20 @@ namespace ElementChaos
 
         public int remain_time; // -1 no remain time
         public int tmp_cnt; // for test;
+        
+        // TODO: 将结算剩余存在时间的逻辑移动到这里
         public virtual void AutoAction()
         {
 
         }
+
+        public virtual void AfterPutDown()
+        {
+
+        }
+
+        public virtual void BeLiftedUp()
+        {}
 
         public ElementBase(int v, int h, int rt = -1)
         {
@@ -30,11 +40,17 @@ namespace ElementChaos
             this.remain_time = rt;
             this.gsm = GameStatusManger.GetInstance();
         }
+        // 每种元素重写该函数来实现不同的元素交互效果
         public virtual void checkNearElement() {}
 
         // tool method
 
         //check
+        /*
+        *     X
+        *   X o X
+        *     X
+        */
         protected bool isNear(GameDef.GameObj elementType)
         {
             var map = gsm.stage.running_stage_map;
@@ -120,7 +136,7 @@ namespace ElementChaos
             {
                 //remain_time = GameDef.GlobalData.wood_fire_time;
                 gsm.stage.RemoveElement(pos_v, pos_h);
-                gsm.stage.GenerateElement(GameDef.GameObj.Fire, pos_v, pos_h, Tools.rand.Next(5,17));
+                gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, pos_v, pos_h, Tools.rand.Next(5,17));
             }
             else if (isNear(GameDef.GameObj.Fire) && nearFireTime != this.fire_tolerance_time)
             {
@@ -136,13 +152,80 @@ namespace ElementChaos
     class WaterElement : ElementBase
     {
         //TODO implement
-        public WaterElement(int v, int h, int rt = -1) : base(v, h, rt){}
+        public GameDef.WaterType water_type;
+        public int flow_stop_distance;
+        public int curr_flow_distance = 0;
+
+        // 该list用于水源被移除后，流动水消失的逻辑
+        public List<FlowWaterElement> childrenFlowWaterList;
+        public WaterElement(int v, int h, int rt = -1, 
+            GameDef.WaterType wt = GameDef.WaterType.NoFlow, int fd = 0) : base(v, h, rt)
+        {
+            this.water_type = wt;
+            this.flow_stop_distance = fd;
+            childrenFlowWaterList = new List<FlowWaterElement>();
+        }
         public override void AutoAction()
         {
-            var gsm = GameStatusManger.GetInstance();
-            gsm.stage.GenerateElement(GameDef.GameObj.FlowWater, pos_v++, pos_h);
+            if (this.water_type == GameDef.WaterType.NoFlow 
+                || curr_flow_distance == flow_stop_distance)
+                return;
+
+            //TODO: 暂时设置为水源被拾取后，全部流动水会瞬间消失
+
+            // gsm.stage.GenerateNewElement(GameDef.GameObj.FlowWater, pos_v++, pos_h);
         }
 
+        private bool GenerateFlowWater()
+        {
+            int dv = 0, dh = 0;
+            switch (this.water_type)
+            {
+                case GameDef.WaterType.Left:
+                    dh += curr_flow_distance;
+                    break;
+                case GameDef.WaterType.Right:
+                    dh -= curr_flow_distance;
+                    break;
+                case GameDef.WaterType.Down:
+                    dv += curr_flow_distance;
+                    break;
+                case GameDef.WaterType.Up:
+                    dv -= curr_flow_distance;
+                    break;
+            }
+
+
+            // if (!gsm.stage.isValidPos(pos_v + dv, pos_h + dh))
+            //     return false;
+            if (gsm.stage.GenerateNewElement(GameDef.GameObj.FlowWater, pos_v + dv, pos_h + dh))
+            {
+            
+                this.childrenFlowWaterList.Add((FlowWaterElement)gsm.stage.elements_map[pos_v + dv, pos_h + dh]);
+                return true;
+            }
+
+            return false;
+            
+        }
+
+        
+        public override void AfterPutDown()
+        {
+            //TODO: 被重新放置后, 改变水流方向
+
+        }
+
+        public override void BeLiftedUp()
+        {
+            for (int i = 0; i < childrenFlowWaterList.Count; i++)
+            {
+                var e = childrenFlowWaterList[i];
+                gsm.stage.RemoveElement(e.pos_v, e.pos_h);
+            } 
+
+            this.childrenFlowWaterList.Clear();
+        }
     }
 
     class MudElement : ElementBase

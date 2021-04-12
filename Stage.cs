@@ -141,7 +141,9 @@ namespace ElementChaos
                     }
                     else
                     {
+                        // 先逐个元素计算持续时间，新元素生成等逻辑
                         e.AutoAction();
+                        // 每个元素检查周围存在的元素，进行元素规则结算
                         e.checkNearElement();
                     }
                 }
@@ -149,7 +151,7 @@ namespace ElementChaos
         }
 
         // tool method area
-        public bool GenerateElement(GameDef.GameObj e, int v, int h, int rt = -1)
+        public bool GenerateNewElement(GameDef.GameObj e, int v, int h, int rt = -1)
         {
             if (!Tools.isElment(e) || !isValidPos(v, h))
                 return false;
