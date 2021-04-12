@@ -34,6 +34,8 @@ namespace GameDef
 
 		LiftUp,
 		PutDown,
+		UseSkill,
+		EatElement,
 		RESTART,
 		NOACTION
 	}
@@ -71,6 +73,19 @@ namespace GameDef
 		Down,
 	}
 
+	enum SkillType
+	{
+		NoType = 0,
+		FlameBomb,
+	}
+
+	enum UseSkillStatus
+	{
+		Success = 0,
+		RunOutTimes,
+		Unknown,
+	}
+
 	class GlobalData
 	{
 		public readonly static Dictionary<char, GameDef.GameObj> char2GameObjDict = new Dictionary<char, GameObj>(){
@@ -93,8 +108,9 @@ namespace GameDef
 			{ConsoleKey.RightArrow, GameDef.Action.Right},
 			{ConsoleKey.R, GameDef.Action.RESTART},
 			{ConsoleKey.X, GameDef.Action.LiftUp},
-			{ConsoleKey.C, GameDef.Action.PutDown}
-			
+			{ConsoleKey.C, GameDef.Action.PutDown},
+			{ConsoleKey.Z, GameDef.Action.UseSkill},
+			{ConsoleKey.V, GameDef.Action.EatElement},
 		};
 
 		public readonly static Dictionary<GameDef.GameObj, char> output = new Dictionary<GameDef.GameObj, char>()
@@ -119,7 +135,17 @@ namespace GameDef
 			{GameDef.Towards.Right, GameDef.WaterType.Right},
 			{GameDef.Towards.Down, GameDef.WaterType.Down},
 			{GameDef.Towards.Up, GameDef.WaterType.Up},
-		};	
+		};
+
+		public readonly static Dictionary<GameDef.GameObj, SkillType> SkillMap = new Dictionary<GameObj, SkillType>()
+		{
+			{GameObj.Fire, GameDef.SkillType.FlameBomb}
+		};
+
+		public readonly static HashSet<GameDef.GameObj> ElementCanbeLiftUpSet = new HashSet<GameObj>()
+		{
+			GameObj.Fire, GameObj.Water, GameObj.Glod, GameObj.Log, GameObj.Wind, GameObj.Obsidian
+		};
 
 		public readonly static int elemDictIdxBias = 1000;
 
@@ -127,7 +153,7 @@ namespace GameDef
 		public readonly static int wood_tolerance_time = 3;
 
 		public readonly static int MinObsidianGenFireNeedAirNum = 3;
-		public readonly static int maxLiftUpNum = 1;
+		public readonly static int maxLiftUpNum = 3;
 	}
 	
 }

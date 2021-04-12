@@ -33,7 +33,12 @@ namespace ElementChaos
         }
 
         public virtual void BeLiftedUp()
-        {}
+        {
+            if (canBeLiftUp())
+            {
+                return;
+            }
+        }
 
         public ElementBase(int v, int h, int rt = -1)
         {
@@ -118,6 +123,20 @@ namespace ElementChaos
             return num;
         }
 
+        public virtual bool canBeEaten()
+        {
+            return GameDef.GlobalData.SkillMap.ContainsKey(this.type) && !(this.remain_time == -1); //永久元素不可吃
+        }
+
+        public virtual bool canBeLiftUp()
+        {
+            return GameDef.GlobalData.ElementCanbeLiftUpSet.Contains(this.type);
+        }
+
+        public virtual void BeEatean()
+        {
+
+        }
 
 
     }
@@ -151,7 +170,8 @@ namespace ElementChaos
     class WoodElement : ElementBase
     {
         //TODO: implement
-        public WoodElement(int v, int h, int rt = -1, int ftt = -1) : base(v, h, rt)
+        private int fire_time;
+        public WoodElement(int v, int h, int rt = -1, int ftt = -1, int fire_time = 3) : base(v, h, rt)
         {
             this.name = "Wood";
             if (ftt == -1)
@@ -163,6 +183,7 @@ namespace ElementChaos
                 this.fire_tolerance_time = ftt;
             }
             this.type = GameDef.GameObj.Wood;
+            this.fire_time = fire_time;
         }
         public int nearFireTime = 0;
         public int fire_tolerance_time;
@@ -195,7 +216,7 @@ namespace ElementChaos
             {
                 //remain_time = GameDef.GlobalData.wood_fire_time;
                 gsm.stage.RemoveElement(pos_v, pos_h);
-                gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, pos_v, pos_h, Tools.rand.Next(5,17));
+                gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, pos_v, pos_h, fire_time);
             }
             else if (isAdjacency(GameDef.GameObj.Fire) && nearFireTime != this.fire_tolerance_time)
             {
@@ -452,13 +473,13 @@ namespace ElementChaos
                 case GameDef.GameObj.FlowWater:
                     return new FlowWaterElement(v, h, rt);
                 case GameDef.GameObj.Wood:
-                    return new WoodElement(v, h, rt);
+                    return new WoodElement(v, h, rt, Tools.rand.Next(3, 7), Tools.rand.Next(5, 10));
                 case GameDef.GameObj.Glod:
                     return new GlodElement(v, h, rt);
                 case GameDef.GameObj.Obsidian:
                     return new ObsidianElement(v, h, rt);
                 case GameDef.GameObj.Log:
-                    var ne = new WoodElement(v, h, 100, 15);
+                    var ne = new WoodElement(v, h, rt, 15, 1000);
                     ne.type = GameDef.GameObj.Log; //TODO临时基于木元素实现的耐烧木头，后期要改掉 
                     return ne;
                 //TODO

@@ -83,6 +83,12 @@ namespace ElementChaos
 				case GameDef.Action.PutDown:
 					player.PushDownElement();
 					break;
+				case GameDef.Action.UseSkill:
+					player.UseSkill();
+					break;
+				case GameDef.Action.EatElement:
+					player.EatElement();
+					break;
 				default:
 					break;
 			}

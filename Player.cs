@@ -16,6 +16,8 @@ namespace ElementChaos
 		public Stack<ElementBase> liftUpELemStack;
 
 		public GameDef.Towards towards;
+
+		public ElementSkillBase equipSkill = null;
 		public Player(int _h = 7, int _v = 7)
 		{
 			this.pos_v = _v;
@@ -141,6 +143,49 @@ namespace ElementChaos
 			new_v = this.pos_v + dv;
 			new_h = this.pos_h + dh;
 	
+			return true;
+		}
+	
+		public bool EatElement()
+		{
+			if (this.liftUpELemStack.Count == 0)
+			{
+				Debug.WriteLine("[Player] no element can be eaten");
+				return false;
+			}
+
+			var e = liftUpELemStack.Peek();
+			if (!e.canBeEaten())
+			{
+				Debug.WriteLine("[Player] element {0} can not be eatean", e.name);
+				return false;
+			}
+
+			// 吃同一种元素，剩余使用次数叠加
+			if (this.equipSkill != null && this.equipSkill.type == GameDef.GlobalData.SkillMap[e.type])
+			{
+				this.equipSkill.remain_use_time += e.remain_time;
+			}
+			else
+			{
+				this.equipSkill = new FlameBomb(e.remain_time);
+			}
+
+			liftUpELemStack.Pop();
+
+			return true;
+		}
+
+		public bool UseSkill()
+		{
+			if (equipSkill == null)
+				return false;
+
+			if (equipSkill.UseSkill(this.towards) == GameDef.UseSkillStatus.RunOutTimes)
+			{
+				equipSkill = null;
+				return true;
+			}
 			return true;
 		}
 	}
