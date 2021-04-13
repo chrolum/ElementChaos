@@ -21,8 +21,19 @@ namespace ElementChaos
             StageLoader.LoadStageCommonDataFromFile(stage2);
             stage2.InitialCommon();
 
-            aviableStageList.Add(stage1);
+            var stage3 = new LiftUpAndPushDownStage();
+            StageLoader.LoadStageCommonDataFromFile(stage3);
+            stage3.InitialCommon();
+
+            var stage4 = new LiftUpStage();
+            StageLoader.LoadStageCommonDataFromFile(stage4);
+            stage4.InitialCommon();
+
+            aviableStageList.Add(stage4);
+            aviableStageList.Add(stage3);
             aviableStageList.Add(stage2);
+            aviableStageList.Add(stage1);
+
         }
 
         public static Stage GetNextStage()

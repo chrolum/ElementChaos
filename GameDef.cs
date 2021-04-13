@@ -71,6 +71,7 @@ namespace GameDef
 
 	}
 
+	//保持和action中l r u d一致
 	enum Towards
 	{
 		Left = 0,

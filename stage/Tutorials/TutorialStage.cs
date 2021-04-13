@@ -57,6 +57,18 @@ namespace ElementChaos
         public LiftUpAndPushDownStage()
         {
             this.filePath = "../../../stage/Tutorials/LiftUAndPushDown";
+            this.desc = new List<string>()
+            {
+                "关卡目标: 拾取所有的金元素, 并放到指定位置",
+                " $ ---- 金元素",
+                " . ---- 金元素放置点",
+
+                "新操作: 放置元素【C 键】",
+                "将背包第一个元素放置在人物朝向的前一格",
+                "人物前一格有遮挡物将无法放置"
+
+            };
+
         }
 
         public override bool checkWin()
@@ -70,6 +82,29 @@ namespace ElementChaos
                     return false;
             }
             return true;
+        }
+    }
+
+    class LiftUpStage : Stage
+    {
+
+        public LiftUpStage()
+        {
+            this.filePath = "../../../stage/Tutorials/LiftUp";
+            this.desc = new List<string>()
+            {
+                "关卡目标: 拾取所有的金元素",
+                " ",
+                "方向键控制人物移动",
+                "直接走过某些元素, 即可自动吸取",
+                "当元素背包满后(上限3个元素), 你无法再吸取元素"
+            };
+            
+        }
+
+        public override bool checkWin()
+        {
+            return this.player.liftUpELemStack.Count == 3;
         }
     }
 }
