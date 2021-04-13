@@ -454,6 +454,7 @@ namespace ElementChaos
 
         class GlodElement : ElementBase
     {
+        private int point = 100;
         public GlodElement(int v, int h, int rt = -1) : base(v, h, rt)
         {
             this.name = "Glod";
@@ -462,6 +463,16 @@ namespace ElementChaos
         public override void AutoAction()
         {
             
+        }
+
+        public override bool canBeEaten()
+        {
+            return true;
+        }
+
+        public override void BeEatean()
+        {
+            gsm.stage.gamePoint += this.point;
         }
     }
 

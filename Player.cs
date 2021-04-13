@@ -174,16 +174,27 @@ namespace ElementChaos
 				return false;
 			}
 
-			// 吃同一种元素，剩余使用次数叠加
-			if (this.equipSkill != null && this.equipSkill.type == GameDef.GlobalData.SkillMap[e.type])
+			//TODO: Opt 吃金元素逻辑
+			if (e.type == GameDef.GameObj.Glod)
 			{
-				this.equipSkill.remain_use_time += e.remain_time;
+				e.BeEatean();
 			}
-			else
+			else // 技能类元素，吃同一种元素，剩余使用次数叠加
 			{
-				this.equipSkill = new FlameBomb(e.remain_time);
+				if (this.equipSkill != null && this.equipSkill.type == GameDef.GlobalData.SkillMap[e.type])
+				{
+					this.equipSkill.remain_use_time += e.remain_time;
+				}
+				else
+				{
+					this.equipSkill = new FlameBomb(e.remain_time);
+				}
 			}
+
+			// Common logic
+			Debug.WriteLine("Eat Element {0} ", e.name);
 			gsm.stage.activateElement.Remove(e);
+			this.liftUpELemStack.Pop();
 
 			return true;
 		}

@@ -84,12 +84,15 @@ namespace ElementChaos
         public GameDef.GameObj[,] orignal_stage_map;
 
         public Player player;
+
         public GameDef.GameObj[,] running_stage_map;
 		public ElementBase[,] elements_map;
 		public List<ElementBase> activateElement;
 
         public int v_size {get;set;}
         public int h_size {get;set;}
+
+        public int gamePoint = 0;
 
         public void InitialCommon()
         {
@@ -108,6 +111,7 @@ namespace ElementChaos
                     activateElement.Add(e);
                 }
             }
+            gamePoint = 0;
         }
 
         public void clearElementMap()
