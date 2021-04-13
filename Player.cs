@@ -63,6 +63,7 @@ namespace ElementChaos
 			}
 
 			this.towards = towards;
+
 			if (!gsm.canMoveTo(this.pos_v + dv, this.pos_h + dh))
 				return;
 			

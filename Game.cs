@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 /*
  * orignal postion start from left-up coner
@@ -14,11 +15,14 @@ namespace ElementChaos
 	{
 		// store scence data
 
-		ConsoleCanvas stagecanvas;
-		ConsoleCanvas gameMsgCanvas;
-		ConsoleCanvas playerStatusUICanvas;
+		public ConsoleCanvas stagecanvas;
+		// public ConsoleCanvas gameMsgCanvas;
+		// public ConsoleCanvas playerStatusUICanvas;
+
+		public GameMsgUI gameMsgUI;
+		public PlayerStatusMsgUI playerStatusUI;
 		public Stage stage;
-		GameStatusManger gsm;
+		public GameStatusManger gsm;
 		private int SenceWidth, SenceHeigth;
 		private int gamePoint = 0;
 
@@ -39,6 +43,13 @@ namespace ElementChaos
 			this.stage = StageManager.GetStageByIdx(0);
 			this.stage.reload();
 			this.gsm.stage = this.stage;
+			playerStatusUI.reset();
+			gameMsgUI.reset();
+			foreach (var msg in this.stage.desc)
+			{
+				Debug.WriteLine(msg);
+				playerStatusUI.publishMsg(msg);
+			}
 		}
 		public Game(int scence_h_size = 55, int scence_v_size = 35)
 		{
@@ -53,15 +64,17 @@ namespace ElementChaos
 			// TODO: adopt the new draw system
 			// new draw buffer
 			stagecanvas = new ConsoleCanvas(SenceWidth, SenceHeigth, anchor_h:2, anchor_v:2);
-			gameMsgCanvas = new ConsoleCanvas(SenceWidth, 10, anchor_v: SenceHeigth + 2, anchor_h: 2);
-			playerStatusUICanvas = new ConsoleCanvas(25, SenceHeigth, anchor_v: 2, anchor_h: 2*(SenceWidth+1) + 2);
+			gameMsgUI = new GameMsgUI(SenceWidth, 10, anchor_v: SenceHeigth + 2, anchor_h: 2);
+			playerStatusUI = new PlayerStatusMsgUI(30, SenceHeigth, anchor_v: 2, anchor_h: 2*(SenceWidth+1) + 2);
+			// gameMsgCanvas = new ConsoleCanvas(SenceWidth, 10, anchor_v: SenceHeigth + 2, anchor_h: 2);
+			// playerStatusUICanvas = new ConsoleCanvas(25, SenceHeigth, anchor_v: 2, anchor_h: 2*(SenceWidth+1) + 2);
 
 
 			draw_buffer = stagecanvas.GetBuffer();
 			color_buffer = stagecanvas.GetColorBuffer();
 			stagecanvas.drawEdge();
-			gameMsgCanvas.drawEdge();
-			playerStatusUICanvas.drawEdge();
+			gameMsgUI.canvas.drawEdge();
+			playerStatusUI.canvas.drawEdge();
 
 			BulletManager.gsm = this.gsm;
 			
@@ -124,16 +137,19 @@ namespace ElementChaos
 			//TODO: 更换Canvas绘制系统
 			// new canvas system
 			stagecanvas.ClearBuffer_DoubleBuffer();
-			gameMsgCanvas.ClearBuffer_DoubleBuffer();
-			playerStatusUICanvas.ClearBuffer_DoubleBuffer();
 			// draw area
 			DrawMap();
 			DrawAnimation();
-			DrawUI();
 			DrawPlayer();
 			stagecanvas.Refresh_DoubleBuffer();
-			gameMsgCanvas.Refresh_DoubleBuffer();
-			playerStatusUICanvas.Refresh_DoubleBuffer();
+
+
+			gameMsgUI.Draw();
+			playerStatusUI.Draw();
+			// gameMsgCanvas.ClearBuffer_DoubleBuffer();
+			// playerStatusUICanvas.ClearBuffer_DoubleBuffer();
+			// gameMsgCanvas.Refresh_DoubleBuffer();
+			// playerStatusUICanvas.Refresh_DoubleBuffer();
 		}
 
 		// draw method
@@ -149,7 +165,21 @@ namespace ElementChaos
 						obj = GameDef.GameObj.Air;
 					}
 					draw_buffer[r,c] = GameDef.GlobalData.output[obj];
+					if (GameDef.GlobalData.outputForeColor.ContainsKey(obj))
+					{
+						color_buffer[r, c] = GameDef.GlobalData.outputForeColor[obj];
+					}
 				}
+			}
+
+			//目标点额外绘制
+			var keyList = stage.goalDict.Keys;
+			foreach (var k in keyList)
+			{
+				var v = Tools.UnPackCoords_V(k);
+				var h = Tools.UnPackCoords_H(k);
+				draw_buffer[v,h] = GameDef.GlobalData.output[GameDef.GameObj.Goal];
+				color_buffer[v, h] = GameDef.GlobalData.outputForeColor[GameDef.GameObj.Goal];
 			}
 		}
 
@@ -171,6 +201,7 @@ namespace ElementChaos
 			foreach (var b in BulletManager.activeBulletList)
 			{
 				draw_buffer[b.pos_v, b.pos_h] = 'o';
+				color_buffer[b.pos_v, b.pos_h] = ConsoleColor.DarkRed;
 			}
 		}
 

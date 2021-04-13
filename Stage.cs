@@ -31,6 +31,7 @@ namespace ElementChaos
             stage.orignal_stage_map = new GameDef.GameObj[map_v_size + 1, map_h_size + 1];
             stage.elements_map = new ElementBase[map_v_size + 1, map_h_size + 1];
             stage.activateElement = new List<ElementBase>();
+            stage.goalDict = new Dictionary<int, bool>();
 
             while ((line = file.ReadLine()) != null)
             {
@@ -43,6 +44,15 @@ namespace ElementChaos
                     {
                         obj = GameDef.GlobalData.char2GameObjDict[c];
                     }
+
+
+                    if (obj == GameDef.GameObj.Goal)
+                    {
+                        stage.goalDict[Tools.PackCoords(v:v_idx, h:h_idx)] = false;
+                        h_idx++;
+                        continue;
+                    }
+
                     if (obj == GameDef.GameObj.Player)
                     {
                         stage.player = new Player(h_idx, v_idx);
@@ -83,7 +93,9 @@ namespace ElementChaos
         public GameDef.StageType type = GameDef.StageType.Debug;
         public GameDef.GameObj[,] orignal_stage_map;
 
+        public Dictionary<int, bool> goalDict;
         public Player player;
+        public List<string> desc;
 
         public GameDef.GameObj[,] running_stage_map;
 		public ElementBase[,] elements_map;
@@ -141,6 +153,18 @@ namespace ElementChaos
                         running_stage_map[r, c] = orignal_stage_map[r, c];
                     }
                 }
+            }
+        }
+
+        public void resetGoalDict()
+        {
+            if (this.goalDict.Count == 0)
+                return;
+            
+            var keyList = goalDict.Keys;
+            foreach (var k in keyList)
+            {
+                goalDict[k] = false;
             }
         }
 

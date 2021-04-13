@@ -132,7 +132,7 @@ namespace GameDef
 		public readonly static Dictionary<GameDef.GameObj, char> output = new Dictionary<GameDef.GameObj, char>()
 		{
 			{GameDef.GameObj.Air, ' '},
-			{GameDef.GameObj.ImmutableWall, '#'},
+			{GameDef.GameObj.ImmutableWall, '■'},
 			{GameDef.GameObj.Fire, '*'},
 			{GameDef.GameObj.Wind, '@'},
 			{GameDef.GameObj.Mud, '-'},
@@ -143,6 +143,39 @@ namespace GameDef
 			{GameDef.GameObj.FlowWater, '~'},
 			{GameDef.GameObj.Obsidian, '&'},
 			{GameDef.GameObj.Log, 'L'},
+			{GameDef.GameObj.Goal, '.'}
+		};
+
+		public readonly static Dictionary<GameDef.GameObj, ConsoleColor> outputForeColor = new Dictionary<GameDef.GameObj, ConsoleColor>()
+		{
+			{GameDef.GameObj.ImmutableWall, ConsoleColor.Gray},
+			{GameDef.GameObj.Fire, ConsoleColor.Red},
+			{GameDef.GameObj.Wind, ConsoleColor.DarkGray},
+			{GameDef.GameObj.Mud, ConsoleColor.DarkCyan},
+			{GameDef.GameObj.Glod, ConsoleColor.Yellow},
+			{GameDef.GameObj.Water, ConsoleColor.Blue},
+			{GameDef.GameObj.Wood, ConsoleColor.DarkGreen},
+			{GameDef.GameObj.Player, ConsoleColor.Gray},
+			{GameDef.GameObj.FlowWater, ConsoleColor.Gray},
+			{GameDef.GameObj.Obsidian, ConsoleColor.DarkMagenta},
+			{GameDef.GameObj.Log, ConsoleColor.Gray},
+			{GameDef.GameObj.Goal, ConsoleColor.Magenta},
+		};
+
+		
+		public readonly static Dictionary<GameDef.GameObj, ConsoleColor> outputBackColor = new Dictionary<GameDef.GameObj, ConsoleColor>()
+		{
+			{GameDef.GameObj.ImmutableWall, ConsoleColor.Gray},
+			{GameDef.GameObj.Fire, ConsoleColor.Red},
+			{GameDef.GameObj.Wind, ConsoleColor.DarkGray},
+			{GameDef.GameObj.Mud, ConsoleColor.Gray},
+			{GameDef.GameObj.Glod, ConsoleColor.Yellow},
+			{GameDef.GameObj.Water, ConsoleColor.Blue},
+			{GameDef.GameObj.Wood, ConsoleColor.Gray},
+			{GameDef.GameObj.Player, ConsoleColor.Gray},
+			{GameDef.GameObj.FlowWater, ConsoleColor.Cyan},
+			{GameDef.GameObj.Obsidian, ConsoleColor.Gray},
+			{GameDef.GameObj.Log, ConsoleColor.Gray},
 		};
 
 		public readonly static Dictionary<GameDef.Towards, GameDef.WaterType> waterTypeMapByPlayerTowards = new Dictionary<Towards, WaterType>()

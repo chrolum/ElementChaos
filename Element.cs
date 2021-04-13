@@ -473,6 +473,9 @@ namespace ElementChaos
         public override void BeEatean()
         {
             gsm.stage.gamePoint += this.point;
+            MessageManager.Instance.publishGameMsg("融合了金元素，获得" + this.point + "分");
+
+            
         }
     }
 

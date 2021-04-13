@@ -118,7 +118,7 @@ public class ConsoleCanvas
             {
                 if (buffer[i,j] != backBuffer[i,j])
                 {
-                    Console.SetCursorPosition(j*2 + offset_h * 2, i + offset_v);
+                    Console.SetCursorPosition(j*2 + offset_h, i + offset_v);
                     ConsoleColor c = color_buffer[i, j];
                     Console.ForegroundColor = c;
                     Console.Write(buffer[i, j]);
@@ -133,7 +133,7 @@ public class ConsoleCanvas
         for (int i = 0; i <= width + 1; i++)
         {
             Console.SetCursorPosition(i*2 + anchor_h-2, anchor_v - 2);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("■");
             Console.SetCursorPosition(i*2 + anchor_h-2, anchor_v - 2+ height);
             Console.Write("■");
@@ -142,7 +142,7 @@ public class ConsoleCanvas
         for (int i = 0; i <= height; i++)
         {
             Console.SetCursorPosition(anchor_h-2, anchor_v+i-2);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("■");
             Console.SetCursorPosition(anchor_h-2 + (width+1) * 2, anchor_v+i-2);
             Console.Write("■");
