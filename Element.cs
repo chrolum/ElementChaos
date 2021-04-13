@@ -40,6 +40,11 @@ namespace ElementChaos
             }
         }
 
+        public virtual void beHitByBullet(Bullet b)
+        {
+            
+        }
+
         public ElementBase(int v, int h, int rt = -1)
         {
             this.pos_h = h;
@@ -300,7 +305,7 @@ namespace ElementChaos
         {
             //水源被重新放置后, 改变水流方向
             // 流动水的生成由AutoAction实现
-            this.water_type = GameDef.GlobalData.waterTypeMapByPlayerTowards[gsm.player.towards];    
+            this.water_type = GameDef.GlobalData.waterTypeMapByPlayerTowards[gsm.stage.player.towards];    
         }
 
         public override void BeLiftedUp()
@@ -385,7 +390,7 @@ namespace ElementChaos
             }
 
             // TODO: 打火概率先写死，后期改成可配置概率
-            if (Tools.rand.Next(1, 101) < 90)
+            if (Tools.rand.Next(1, 101) > 90)
             {
                 return;
             }

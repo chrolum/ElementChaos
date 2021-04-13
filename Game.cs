@@ -15,7 +15,7 @@ namespace ElementChaos
 		// store scence data
 
 		ConsoleCanvas canvas;
-		Stage stage;
+		public Stage stage;
 		GameStatusManger gsm;
 		private Player player;
 		private int SenceWidth, SenceHeigth;
@@ -32,21 +32,27 @@ namespace ElementChaos
 		ConsoleColor[,] color_buffer;
 		public int getPoint() {return this.gamePoint;}
 
-
-		public Game()
+		public void selectStage()
 		{
-			this.stage = StageLoader.LoadStageFromFile();
-			SenceWidth = stage.h_size;
-			SenceHeigth = stage.v_size;
-			player = new Player();
+			//TODO
+			this.stage = StageManager.GetStageByIdx(0);
+			this.stage.reload();
+			this.gsm.stage = this.stage;
+		}
+		public Game(int scence_h_size = 50, int scence_v_size = 50)
+		{
+
+			SenceWidth = scence_h_size;
+			SenceHeigth = scence_v_size;
+			StageManager.LoadAllStage();
+			this.stage = StageManager.GetStageByIdx(0);
 			this.gsm = GameStatusManger.GetInstance();
 			// gsm.Inital();
 			this.gsm.stage = this.stage;
-			this.gsm.player = player;
 
 			// TODO: adopt the new draw system
 			// new draw buffer
-			canvas = new ConsoleCanvas(SenceWidth + 2, SenceHeigth+ 2);
+			canvas = new ConsoleCanvas(SenceWidth, SenceHeigth);
 			draw_buffer = canvas.GetBuffer();
 			color_buffer = canvas.GetColorBuffer();
 
@@ -74,22 +80,22 @@ namespace ElementChaos
 				case GameDef.Action.Right:
 				case GameDef.Action.Down:
 				case GameDef.Action.Up:
-					player.move(action);
+					stage.player.move(action);
 					break;
 				case GameDef.Action.RESTART:
 					Restart();
 					return;
 				case GameDef.Action.LiftUp:
-					player.LiftUpElement();
+					stage.player.LiftUpElement();
 					break;
 				case GameDef.Action.PutDown:
-					player.PushDownElement();
+					stage.player.PushDownElement();
 					break;
 				case GameDef.Action.UseSkill:
-					player.UseSkill();
+					stage.player.UseSkill();
 					break;
 				case GameDef.Action.EatElement:
-					player.EatElement();
+					stage.player.EatElement();
 					break;
 				default:
 					break;
@@ -104,7 +110,7 @@ namespace ElementChaos
 
 		public void Restart()
 		{
-			//TODO
+			this.stage.reload();
 		}
 		public void draw()
 		{
@@ -122,9 +128,9 @@ namespace ElementChaos
 		// draw method
 		public void DrawMap()
 		{
-			for (int r = 0; r < this.SenceHeigth; r++)
+			for (int r = 0; r < this.stage.v_size; r++)
 			{
-				for (int c = 0; c < this.SenceWidth; c++)
+				for (int c = 0; c < this.stage.h_size; c++)
 				{
 					var obj = stage.running_stage_map[r, c];
 					if (!GameDef.GlobalData.output.ContainsKey(obj))
@@ -138,7 +144,7 @@ namespace ElementChaos
 
 		public void DrawPlayer()
 		{
-			draw_buffer[player.pos_v, player.pos_h] = GameDef.GlobalData.output[GameDef.GameObj.Player];
+			draw_buffer[stage.player.pos_v, stage.player.pos_h] = GameDef.GlobalData.output[GameDef.GameObj.Player];
 		}
 
 		//TODO: UI组件？

@@ -18,7 +18,15 @@ namespace GameDef
 		Glod,
 		Obsidian,
 		Log,
+		LifeElementStart,
+		
+		EvilElement,
+		BrightElement,
+		BlackElement,
+		LifeElementEnd,
 		ElementEnd,
+
+
 		ImmutableWall,
 		Air,
 		Goal,
@@ -86,6 +94,13 @@ namespace GameDef
 		Unknown,
 	}
 
+	enum StageType
+	{
+		Debug,
+		Tutorials,
+		ExitPoint,
+	}
+
 	class GlobalData
 	{
 		public readonly static Dictionary<char, GameDef.GameObj> char2GameObjDict = new Dictionary<char, GameObj>(){
@@ -97,7 +112,8 @@ namespace GameDef
 			{'W', GameDef.GameObj.Water},
 			{'$', GameObj.Glod},
 			{'&', GameObj.Obsidian},
-			{'L', GameObj.Log}
+			{'L', GameObj.Log},
+			{'P', GameObj.Player},
 		};
 
 		public readonly static Dictionary<ConsoleKey, GameDef.Action> ActionMap = new Dictionary<ConsoleKey, GameDef.Action>()
