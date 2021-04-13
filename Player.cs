@@ -13,6 +13,8 @@ namespace ElementChaos
 		public int pos_v {get;set;}
 		public int pos_h {get;set;}
 
+		public int Hp = 100;
+
 		public Stack<ElementBase> liftUpELemStack;
 
 		public GameDef.Towards towards;
@@ -68,6 +70,7 @@ namespace ElementChaos
 			this.pos_h += dh;
 		}
 	
+		// 注意维护activeList的一致性
 		public void LiftUpElement()
 		{
 			//TODO
@@ -76,12 +79,16 @@ namespace ElementChaos
 			{
 				return;
 			}
+			if (!gsm.stage.isValidPos(elementPos_v, elementPos_h))
+                return;
 
 			var e_tpye = gsm.stage.running_stage_map[elementPos_v, elementPos_h];
 
 			if (!Tools.isElment(e_tpye) 
 				|| liftUpELemStack.Count >= GameDef.GlobalData.maxLiftUpNum
-				|| e_tpye == GameDef.GameObj.FlowWater)
+				|| e_tpye == GameDef.GameObj.FlowWater
+				|| e_tpye == GameDef.GameObj.Wood
+				|| e_tpye == GameDef.GameObj.Obsidian)
 			{
 				Debug.WriteLine("Lift at ({0}, {1}) Failed, bag num {2}, bag max size {3}", 
 					elementPos_v, elementPos_h,
@@ -91,7 +98,13 @@ namespace ElementChaos
 
 			var e = gsm.stage.elements_map[elementPos_v, elementPos_h];
 			this.liftUpELemStack.Push(e);
-			gsm.stage.RemoveElement(elementPos_v, elementPos_h);
+			//Discard lift up 的元素没有失活, liftup 不在从activeList中移除元素
+			//gsm.stage.RemoveElement(elementPos_v, elementPos_h);
+
+
+            gsm.stage.running_stage_map[elementPos_v, elementPos_h] = GameDef.GameObj.Air;
+			gsm.stage.elements_map[elementPos_v, elementPos_h] = null;
+
 			e.BeLiftedUp();
 			
 			Debug.WriteLine("[Player] Lift up element at ({0}, {1})", elementPos_v, elementPos_h);
@@ -170,8 +183,7 @@ namespace ElementChaos
 			{
 				this.equipSkill = new FlameBomb(e.remain_time);
 			}
-
-			liftUpELemStack.Pop();
+			gsm.stage.activateElement.Remove(e);
 
 			return true;
 		}

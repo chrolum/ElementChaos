@@ -8,11 +8,12 @@ namespace ElementChaos
 {
     class StageLoader
     {
-        public static Stage LoadStageFromFile(string filePath = @"../../../stage1")
+
+        // 只设置关卡的元素地图还有玩家，其他特殊条件在各自的关卡类中实现
+        public static void LoadStageCommonDataFromFile(Stage stage)
         {
             
-            Stage stage = new Stage();
-            System.IO.StreamReader file = new System.IO.StreamReader(filePath);
+            System.IO.StreamReader file = new System.IO.StreamReader(stage.filePath);
             string line;
             //get map size
             line = file.ReadLine();
@@ -42,17 +43,23 @@ namespace ElementChaos
                     {
                         obj = GameDef.GlobalData.char2GameObjDict[c];
                     }
+                    if (obj == GameDef.GameObj.Player)
+                    {
+                        stage.player = new Player(h_idx, v_idx);
+                    }
+                    //player 不往地图上写
+                    else
+                    {
+                        stage.running_stage_map[v_idx, h_idx] = obj;
+                    }
                     stage.orignal_stage_map[v_idx, h_idx] = obj;
-                    stage.running_stage_map[v_idx, h_idx] = obj;
                     h_idx++;
                 }
                 h_idx = 0;
                 v_idx++;
             }
 
-            stage.Initial();
-
-            return stage;
+            stage.InitialCommon();
         }
 
         //test
@@ -61,36 +68,87 @@ namespace ElementChaos
         //     var s = StageLoader.LoadStageFromFile();
         //     s.test_print();
         // }
+
+        public static void LoadStage(Stage stage)
+        {
+            StageLoader.LoadStageCommonDataFromFile(stage);
+            stage.InitialCustom();
+        }
     }
 
     class Stage
     {
         // for restrat
+        public string filePath = "../../../stage/DebugStage";
+        public GameDef.StageType type = GameDef.StageType.Debug;
         public GameDef.GameObj[,] orignal_stage_map;
 
-        // public player
+        public Player player;
         public GameDef.GameObj[,] running_stage_map;
 		public ElementBase[,] elements_map;
 		public List<ElementBase> activateElement;
 
-
         public int v_size {get;set;}
         public int h_size {get;set;}
 
-        public void Initial()
+        public void InitialCommon()
         {
             //根据关卡文件生成元素图
+            activateElement.Clear();
+            clearElementMap();
+            resetRunningStage();
             for (int r = 0; r < v_size; r++)
             {
                 for (int c = 0; c < h_size; c++)
                 {
-                    if (!Tools.isElment(running_stage_map[r, c]))
+                    if (!Tools.isElment(orignal_stage_map[r, c]))
                         continue;
-                    var e = ElementFactory.CreateElment(running_stage_map[r, c], r, c);
+                    var e = ElementFactory.CreateElment(orignal_stage_map[r, c], r, c);
                     elements_map[r, c] = e;
                     activateElement.Add(e);
                 }
             }
+        }
+
+        public void clearElementMap()
+        {
+            for (int r = 0; r < v_size; r++)
+            {
+                for (int c = 0; c < h_size; c++)
+                {
+                    elements_map[r, c] = null;
+                }
+            }
+        }
+
+        public void resetRunningStage()
+        {
+            // TODO 顺便重置玩家, 后期改掉;
+            for (int r = 0; r < v_size; r++)
+            {
+                for (int c = 0; c < h_size; c++)
+                {
+                    if (orignal_stage_map[r, c] == GameDef.GameObj.Player)
+                    {
+                        this.player = new Player(c, r);
+                    }
+                    else
+                    {
+                        running_stage_map[r, c] = orignal_stage_map[r, c];
+                    }
+                }
+            }
+        }
+
+        public virtual void InitialCustom()
+        {
+
+        }
+
+        public void reload()
+        {
+            InitialCommon();
+            InitialCustom();
         }
 
         public void test_print()
@@ -186,7 +244,8 @@ namespace ElementChaos
             element.pos_h = h;
             this.running_stage_map[v, h] = element.type;
             this.elements_map[v, h] = element;
-            this.activateElement.Add(element);
+            // Modify: 元素被举起后，只有被吃了才失效
+            // this.activateElement.Add(element);
             Debug.WriteLine("[Stage] Push Down {0} elment at ({1}, {2})", element.name, v, h);
             return true;
         }
@@ -213,5 +272,16 @@ namespace ElementChaos
         {
             return isSpecifyGameObjAt(GameDef.GameObj.Fire, v, h);
         }
+
+        public virtual bool checkWin()
+        {
+            return false;
+        }
+
+        public virtual bool checkFailed()
+        {
+            return false;
+        }
+
     }
 }

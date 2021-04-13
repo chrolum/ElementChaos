@@ -47,7 +47,8 @@ namespace ElementChaos
     // 元素附属
     class Bullet
     {
-        public Bullet(int v, int h, int speed = 1, int flying_distance = 10, GameDef.Towards tw = GameDef.Towards.Left)
+        public int damage;
+        public Bullet(int v, int h, int speed = 1, int flying_distance = 10, GameDef.Towards tw = GameDef.Towards.Left, int dmg = 10)
         {
             this.pos_v = v;
             this.pos_h = h;
@@ -55,6 +56,7 @@ namespace ElementChaos
             this.flying_time = 0;
             this.flying_distance = flying_distance;
             this.towards = tw;
+            this.damage = dmg;
         }
         public GameDef.Towards towards;
         public int pos_v;
@@ -65,6 +67,12 @@ namespace ElementChaos
         public int flying_distance;
 
         public int speed;
+
+        // 碰撞爆炸效果的实现, 普通伤害在元素中实现
+        public virtual void takeEffectAfterHitObject()
+        {
+
+        }
 
     }
 
@@ -116,25 +124,30 @@ namespace ElementChaos
         static public bool checkSingleBulletcollision(Bullet b)
         {
             bool isHit = false;
+            ElementBase beHitElement = null;
             switch (b.towards)
             {
                 case GameDef.Towards.Left:
-                    isHit = hitObjectLeft(b);
+                    isHit = hitObjectLeft(b, out beHitElement);
                     break;
                 case GameDef.Towards.Right:
-                    isHit = hitObjectRight(b);
+                    isHit = hitObjectRight(b, out beHitElement);
                     break;
                 case GameDef.Towards.Up:
-                    isHit = hitObjectUp(b);
+                    isHit = hitObjectUp(b, out beHitElement);
                     break;
                 case GameDef.Towards.Down:
-                    isHit = hitObjectDown(b);
+                    isHit = hitObjectDown(b, out beHitElement);
                     break;
             }
             
             if (isHit)
             {
                 //TODO monister be hit
+                if (beHitElement != null)
+                {
+                    beHitElement.beHitByBullet(b);
+                }
                 return isHit;
             }
 
@@ -145,11 +158,12 @@ namespace ElementChaos
 
 
         //TODO: opt this shit noodle code
-        static public bool hitObjectLeft(Bullet b)
+        static public bool hitObjectLeft(Bullet b, out ElementBase beHitElement)
         {
             var pos_v = b.pos_v;
             var pos_h = b.pos_h;
             var distance = b.speed;
+            beHitElement = null;
             for (int idx = 1; idx <= distance; idx++)
             {
                 if (!gsm.stage.isValidPos(pos_v, pos_h-idx))
@@ -159,6 +173,10 @@ namespace ElementChaos
                 
                 if (gsm.stage.running_stage_map[pos_v, pos_h-idx] != GameDef.GameObj.Air)
                 {
+                    if (Tools.isElment(gsm.stage.running_stage_map[pos_v, pos_h-idx]))
+                    {
+                        beHitElement = gsm.stage.elements_map[pos_v, pos_h-idx];
+                    }
                     return true;
                 }
 
@@ -169,11 +187,12 @@ namespace ElementChaos
             return false;
         }
         
-        static public bool hitObjectRight(Bullet b)
+        static public bool hitObjectRight(Bullet b, out ElementBase beHitElement)
         {
             var pos_v = b.pos_v;
             var pos_h = b.pos_h;
             var distance = b.speed;
+            beHitElement = null;
             for (int idx = 1; idx <= distance; idx++)
             {
                 if (!gsm.stage.isValidPos(pos_v, pos_h+idx))
@@ -183,6 +202,10 @@ namespace ElementChaos
                 
                 if (gsm.stage.running_stage_map[pos_v, pos_h+idx] != GameDef.GameObj.Air)
                 {
+                    if (Tools.isElment(gsm.stage.running_stage_map[pos_v, pos_h+idx]))
+                    {
+                        beHitElement = gsm.stage.elements_map[pos_v, pos_h+idx];
+                    }
                     return true;
                 }
             }
@@ -191,11 +214,12 @@ namespace ElementChaos
 
             return false;
         }
-        static public bool hitObjectUp(Bullet b)
+        static public bool hitObjectUp(Bullet b, out ElementBase beHitElement)
         {
             var pos_v = b.pos_v;
             var pos_h = b.pos_h;
             var distance = b.speed;
+            beHitElement = null;
             for (int idx = 1; idx <= distance; idx++)
             {
                 if (!gsm.stage.isValidPos(pos_v-idx, pos_h))
@@ -205,6 +229,10 @@ namespace ElementChaos
                 
                 if (gsm.stage.running_stage_map[pos_v-idx, pos_h] != GameDef.GameObj.Air)
                 {
+                    if (Tools.isElment(gsm.stage.running_stage_map[pos_v-idx, pos_h]))
+                    {
+                        beHitElement = gsm.stage.elements_map[pos_v-idx, pos_h];
+                    }
                     return true;
                 }
 
@@ -213,11 +241,12 @@ namespace ElementChaos
             b.pos_v -= distance;
             return false;
         }
-        static public bool hitObjectDown(Bullet b)
+        static public bool hitObjectDown(Bullet b, out ElementBase beHitElement)
         {
             var pos_v = b.pos_v;
             var pos_h = b.pos_h;
             var distance = b.speed;
+            beHitElement = null;
             for (int idx = 1; idx <= distance; idx++)
             {
                 if (!gsm.stage.isValidPos(pos_v+idx, pos_h))
@@ -227,6 +256,10 @@ namespace ElementChaos
                 
                 if (gsm.stage.running_stage_map[pos_v+idx, pos_h] != GameDef.GameObj.Air)
                 {
+                    if (Tools.isElment(gsm.stage.running_stage_map[pos_v+idx, pos_h]))
+                    {
+                        beHitElement = gsm.stage.elements_map[pos_v+idx, pos_h];
+                    }
                     return true;
                 }
 
