@@ -37,6 +37,12 @@ namespace ElementChaos
 		{
 			int dh = 0, dv = 0;
 
+			if (this.towards != (GameDef.Towards) d)
+			{
+				this.towards = (GameDef.Towards) d;
+				return;
+			}
+
 			GameDef.Towards towards = 0;;
 			switch (d)
 			{
@@ -63,6 +69,8 @@ namespace ElementChaos
 			}
 
 			this.towards = towards;
+
+			LiftUpElement(this.pos_v + dv, this.pos_h + dh);
 
 			if (!gsm.canMoveTo(this.pos_v + dv, this.pos_h + dh))
 				return;
