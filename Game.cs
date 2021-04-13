@@ -14,10 +14,11 @@ namespace ElementChaos
 	{
 		// store scence data
 
-		ConsoleCanvas canvas;
+		ConsoleCanvas stagecanvas;
+		ConsoleCanvas gameMsgCanvas;
+		ConsoleCanvas playerStatusUICanvas;
 		public Stage stage;
 		GameStatusManger gsm;
-		private Player player;
 		private int SenceWidth, SenceHeigth;
 		private int gamePoint = 0;
 
@@ -39,9 +40,8 @@ namespace ElementChaos
 			this.stage.reload();
 			this.gsm.stage = this.stage;
 		}
-		public Game(int scence_h_size = 50, int scence_v_size = 50)
+		public Game(int scence_h_size = 55, int scence_v_size = 35)
 		{
-
 			SenceWidth = scence_h_size;
 			SenceHeigth = scence_v_size;
 			StageManager.LoadAllStage();
@@ -52,9 +52,16 @@ namespace ElementChaos
 
 			// TODO: adopt the new draw system
 			// new draw buffer
-			canvas = new ConsoleCanvas(SenceWidth, SenceHeigth);
-			draw_buffer = canvas.GetBuffer();
-			color_buffer = canvas.GetColorBuffer();
+			stagecanvas = new ConsoleCanvas(SenceWidth, SenceHeigth, anchor_h:2, anchor_v:2);
+			gameMsgCanvas = new ConsoleCanvas(SenceWidth, 10, anchor_v: SenceHeigth + 2, anchor_h: 2);
+			playerStatusUICanvas = new ConsoleCanvas(25, SenceHeigth, anchor_v: 2, anchor_h: 2*(SenceWidth+1) + 2);
+
+
+			draw_buffer = stagecanvas.GetBuffer();
+			color_buffer = stagecanvas.GetColorBuffer();
+			stagecanvas.drawEdge();
+			gameMsgCanvas.drawEdge();
+			playerStatusUICanvas.drawEdge();
 
 			BulletManager.gsm = this.gsm;
 			
@@ -116,13 +123,17 @@ namespace ElementChaos
 		{
 			//TODO: 更换Canvas绘制系统
 			// new canvas system
-			canvas.ClearBuffer_DoubleBuffer();
+			stagecanvas.ClearBuffer_DoubleBuffer();
+			gameMsgCanvas.ClearBuffer_DoubleBuffer();
+			playerStatusUICanvas.ClearBuffer_DoubleBuffer();
 			// draw area
 			DrawMap();
 			DrawAnimation();
 			DrawUI();
 			DrawPlayer();
-			canvas.Refresh_DoubleBuffer();
+			stagecanvas.Refresh_DoubleBuffer();
+			gameMsgCanvas.Refresh_DoubleBuffer();
+			playerStatusUICanvas.Refresh_DoubleBuffer();
 		}
 
 		// draw method

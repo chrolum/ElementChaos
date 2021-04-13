@@ -13,6 +13,10 @@ public class ConsoleCanvas
     char[,] buffer;
     ConsoleColor[,] color_buffer;
 
+    int anchor_v;
+    int anchor_h;
+
+
     public int Height
     {
         get { return height; }
@@ -23,14 +27,18 @@ public class ConsoleCanvas
         get { return width; }
     }
 
-    public ConsoleCanvas(int w, int h, char _empty = ' ')
+    public ConsoleCanvas(int w, int h, char _empty = ' ', int anchor_v = 0, int anchor_h = 0)
     {
         width = w;
         height = h;
         empty = _empty;
+        this.anchor_v = anchor_v;
+        this.anchor_h = anchor_h;
+
         buffer = new char[height, width];
         backBuffer = new char[height, width];
         color_buffer = new ConsoleColor[height, width];
+        
         Console.CursorVisible = false;
         //ClearBuffer();
         for (int i = 0; i < height; ++i)
@@ -91,6 +99,9 @@ public class ConsoleCanvas
 
     public void Refresh_DoubleBuffer()
     {
+        int offset_v = this.anchor_v;
+        int offset_h = this.anchor_h;
+
         for (int i=0; i<height; i++)
         {
             // 这里的算法是去除每行最后面的空白
@@ -103,17 +114,38 @@ public class ConsoleCanvas
                     break;
                 }
             }
-
             for (int j=0; j<end; j++)
             {
                 if (buffer[i,j] != backBuffer[i,j])
                 {
-                    Console.SetCursorPosition(j*2, i);
+                    Console.SetCursorPosition(j*2 + offset_h * 2, i + offset_v);
                     ConsoleColor c = color_buffer[i, j];
                     Console.ForegroundColor = c;
                     Console.Write(buffer[i, j]);
                 }
             }
+        }
+    }
+
+    public void drawEdge()
+    {
+        //横向
+        for (int i = 0; i <= width + 1; i++)
+        {
+            Console.SetCursorPosition(i*2 + anchor_h-2, anchor_v - 2);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("■");
+            Console.SetCursorPosition(i*2 + anchor_h-2, anchor_v - 2+ height);
+            Console.Write("■");
+        }
+        //纵向
+        for (int i = 0; i <= height; i++)
+        {
+            Console.SetCursorPosition(anchor_h-2, anchor_v+i-2);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("■");
+            Console.SetCursorPosition(anchor_h-2 + (width+1) * 2, anchor_v+i-2);
+            Console.Write("■");
         }
     }
 

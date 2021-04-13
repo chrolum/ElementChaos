@@ -7,6 +7,7 @@ namespace ElementChaos
     {
         static void Main(string[] args)
         {
+            Console.SetWindowSize(Console.LargestWindowWidth-25, Console.LargestWindowHeight-15);
             Game newGame = new Game();
             //select stage
             SELECTSTAGE:
