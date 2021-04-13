@@ -15,17 +15,16 @@ namespace ElementChaos
             this.filePath = "../../../stage/Tutorials/FireAndWood";
             this.desc = new List<string>()
             {
-                "关卡目标: 吃掉三个金元素",
+                "教学关卡: 干柴烈火",
+                "关卡目标: 到达出口",
                 " ",
-                "方向键控制人物行动",
-                "X ---- 拾取当前朝向的元素",
-                "C ---- 放下元素",
-                "V ---- 吃掉元素",
-                "Z ---- 使用元素技能,部分元素吃掉后有元素技能",
-                " ",
+                "[元素介绍]",
                 "* ---- 火元素,可以引燃木元素,可被拾取",
                 "^ ---- 木元素,不可被拾",
-                "$ ---- 金元素,吃掉可获得分数",
+                ". ---- 出口",
+                "[操作指南]",
+                "【C】 放下元素, 需要人物前方有空地",
+                
             };
 
         }
@@ -42,13 +41,13 @@ namespace ElementChaos
 
         public override bool checkWin()
         {
-            // 检查还有没有活跃的金元素
-            foreach (var e in activateElement)
-            {
-                if (e.type == GameDef.GameObj.Glod)
-                    return false;
-            }
-            return true;
+            
+            var keyLists = goalDict.Keys;
+            var p = keyLists[0];
+
+            var v = Tools.UnPackCoords_V(p);
+            var h = Tools.UnPackCoords_H(p);
+            return v == player.pos_v && h == Player.pos_h;
         }
     }
 
@@ -59,6 +58,7 @@ namespace ElementChaos
             this.filePath = "../../../stage/Tutorials/LiftUAndPushDown";
             this.desc = new List<string>()
             {
+                "教学关卡: 淘金热",
                 "关卡目标: 拾取所有的金元素, 并放到指定位置",
                 " $ ---- 金元素",
                 " . ---- 金元素放置点",
@@ -93,6 +93,7 @@ namespace ElementChaos
             this.filePath = "../../../stage/Tutorials/LiftUp";
             this.desc = new List<string>()
             {
+                "教学关卡: 元素漫步",
                 "关卡目标: 拾取所有的金元素",
                 " ",
                 "方向键控制人物移动",
