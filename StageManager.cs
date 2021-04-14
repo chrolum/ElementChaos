@@ -29,9 +29,19 @@ namespace ElementChaos
             StageLoader.LoadStageCommonDataFromFile(stage4);
             stage4.InitialCommon();
 
+            var stage5 = new WaterAndFire();
+            StageLoader.LoadStageCommonDataFromFile(stage5);
+            stage5.InitialCommon();
+
+            var stage6 = new GetSomeFire();
+            StageLoader.LoadStageCommonDataFromFile(stage6);
+            stage6.InitialCommon();
+
             aviableStageList.Add(stage4);
             aviableStageList.Add(stage3);
             aviableStageList.Add(stage1);
+            aviableStageList.Add(stage5);
+            aviableStageList.Add(stage6);
             // aviableStageList.Add(stage2);
 
         }

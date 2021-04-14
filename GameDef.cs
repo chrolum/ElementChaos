@@ -144,7 +144,7 @@ namespace GameDef
 			{GameDef.GameObj.FlowWater, '~'},
 			{GameDef.GameObj.Obsidian, '&'},
 			{GameDef.GameObj.Log, 'L'},
-			{GameDef.GameObj.Goal, '.'}
+			{GameDef.GameObj.Goal, '·'}
 		};
 
 		public readonly static Dictionary<GameDef.GameObj, ConsoleColor> outputForeColor = new Dictionary<GameDef.GameObj, ConsoleColor>()

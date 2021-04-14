@@ -78,6 +78,7 @@ namespace ElementChaos
         public GameMsgUI(int w, int h, char _empty = ' ', int anchor_v = 0, int anchor_h = 0) : base(w, h, _empty, anchor_v, anchor_h)
         {
             MessageManager.Instance.publishGameMsg += publishMsg;
+            this.maxMsgNum = 5;
         }
     }
 

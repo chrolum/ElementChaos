@@ -19,6 +19,10 @@ namespace ElementChaos
                 newGame.gameMsgUI.publishMsg("你已通关全部关卡");
                 newGame.gameMsgUI.publishMsg("To be Continue");
                 newGame.gameMsgUI.publishMsg("按任意键重玩");
+                newGame.gameMsgUI.Draw();
+                System.Threading.Thread.Sleep(50);
+                Console.ReadKey();
+                newGame.gameMsgUI.reset();
                 StageManager.currStageIdx = 0;
             }
             newGame.selectStage();
@@ -29,10 +33,13 @@ namespace ElementChaos
                 {
                     //TODO Win CG
                     Debug.WriteLine("Game: stage win");
-                    newGame.gameMsgUI.publishMsg("恭喜通关！按任意键进入下一关");
+                    newGame.gameMsgUI.publishMsg("恭喜通关！按回车键进入下一关");
                     //立即绘制一次UI
                     newGame.gameMsgUI.Draw();
-                    Console.ReadKey();
+                    while (Console.ReadKey().Key != ConsoleKey.Enter)
+                    {
+
+                    }
                     goto SELECTSTAGE;
                 }
                 else if (newGame.hasFailed())
