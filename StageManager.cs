@@ -37,11 +37,21 @@ namespace ElementChaos
             StageLoader.LoadStageCommonDataFromFile(stage6);
             stage6.InitialCommon();
 
+            var stage7 = new GetMoreFire();
+            StageLoader.LoadStageCommonDataFromFile(stage7);
+            stage7.InitialCommon();
+
+            var stage8 = new FireLog();
+            StageLoader.LoadStageCommonDataFromFile(stage8);
+            stage8.InitialCommon();
+
             aviableStageList.Add(stage4);
             aviableStageList.Add(stage3);
             aviableStageList.Add(stage1);
             aviableStageList.Add(stage5);
             aviableStageList.Add(stage6);
+            aviableStageList.Add(stage7);
+            aviableStageList.Add(stage8);
             // aviableStageList.Add(stage2);
 
         }

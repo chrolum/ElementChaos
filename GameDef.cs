@@ -115,6 +115,7 @@ namespace GameDef
 			{'&', GameObj.Obsidian},
 			{'L', GameObj.Log},
 			{'P', GameObj.Player},
+			{'~', GameObj.FlowWater},
 		};
 
 		public readonly static Dictionary<ConsoleKey, GameDef.Action> ActionMap = new Dictionary<ConsoleKey, GameDef.Action>()
@@ -210,7 +211,7 @@ namespace GameDef
 		//public readonly static int wood_fire_time = 3;
 		public readonly static int wood_tolerance_time = 3;
 
-		public readonly static int MinObsidianGenFireNeedAirNum = 3;
+		public readonly static int MinObsidianGenFireNeedAirNum = 2;
 		public readonly static int maxLiftUpNum = 3;
 	}
 	

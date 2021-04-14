@@ -160,7 +160,7 @@ namespace ElementChaos
         }
     }
 
-        class GetSomeFire : Stage
+    class GetSomeFire : Stage
     {
 
         public int GlodEatTimes = 0;
@@ -178,7 +178,7 @@ namespace ElementChaos
                 "[元素介绍]",
                 "$ ---- 金元素",
                 " ",
-                "& ---- 黑曜石, 周围存在金元素,且有充足的空气(3格空地)时，会随机产生火花",
+                "& ---- 黑曜石, 周围存在金元素,且有2格空地时，会随机产生火花",
                 " ",
                 ". ---- 出口",
                 " ",
@@ -187,7 +187,6 @@ namespace ElementChaos
                 "【C】 放下元素, 需要人物前方有空地",
                 
             };
-
         }
 
         public override bool checkWin()
@@ -199,6 +198,113 @@ namespace ElementChaos
             var v = Tools.UnPackCoords_V(p);
             var h = Tools.UnPackCoords_H(p);
             return v == player.pos_v && h == player.pos_h;
+        }
+    }
+
+    class GetMoreFire : Stage
+    {
+        public GetMoreFire()
+        {
+            this.filePath = "../../../stage/Tutorials/MoreFire";
+            this.desc = new List<string>()
+            {
+                "教学关卡:更多的火",
+                " ",
+                "关卡目标:烧掉所有木元素",
+                "",
+                "关卡描述: 用火花点燃原木，然后烧掉树林",
+                " ",
+                "[元素介绍]",
+                "$ ---- 金元素",
+                " ",
+                "& ---- 黑曜石, 周围存在金元素,且有充足的空气(3格空地)时，会随机产生火花",
+                " ",
+                "L ---- 原木，可被火花点燃，燃烧持续时间更长",
+                ". ---- 出口",
+                " ",
+                "[操作指南]",
+                " ",
+                "【C】 放下元素, 需要人物前方有空地",
+                
+            };
+        }
+
+        public override bool checkWin()
+        {
+            
+            // var keyLists = goalDict.Keys.ToList();
+            // var p = keyLists[0];
+
+            // var v = Tools.UnPackCoords_V(p);
+            // var h = Tools.UnPackCoords_H(p);
+            // return v == player.pos_v && h == player.pos_h;
+            foreach (var e in activateElement)
+            {
+                //TODO: 临时剔除原木的判断
+                if (e.type == GameDef.GameObj.Wood && this.running_stage_map[e.pos_v, e.pos_h] != GameDef.GameObj.Log)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    class FireLog : Stage
+    {
+        public FireLog()
+        {
+            this.filePath = "../../../stage/Tutorials/FireLog";
+            this.desc = new List<string>()
+            {
+                "教学关卡:更多的火",
+                " ",
+                "关卡目标:到达出口",
+                "",
+                "关卡描述: 想办法吃掉火元素，获得元素能力，将森林烧掉",
+                " ",
+                "[元素介绍]",
+                "L ---- 原木，更难被点燃，但燃烧效果更长",
+                " ",
+                "~ ---- 流动水，不可拾取",
+                " ",
+                "^ ---- 木元素，可被点燃",
+                " ",
+                "[操作指南]",
+                " ",
+                "新操作【V】将最新拾取的元素转换为元素能力",
+                "新操作【Z】使用元素能力",
+                " ",
+                "[能力指南]",
+                " ",
+                "火焰弹: 由非永久火元素转化而来，按V向前发生一颗火焰弹",
+                " ",
+                "碰到物体火迸裂出火花", 
+                " ",
+                "可穿过流动水",
+            };
+        }
+
+        public override bool checkWin()
+        {
+            
+            // var keyLists = goalDict.Keys.ToList();
+            // var p = keyLists[0];
+
+            // var v = Tools.UnPackCoords_V(p);
+            // var h = Tools.UnPackCoords_H(p);
+            // return v == player.pos_v && h == player.pos_h;
+            foreach (var e in activateElement)
+            {
+                //TODO: 临时剔除原木的判断
+                if (e.type == GameDef.GameObj.Wood && this.running_stage_map[e.pos_v, e.pos_h] != GameDef.GameObj.Log)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

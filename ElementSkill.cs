@@ -69,10 +69,6 @@ namespace ElementChaos
         public int speed;
 
         // 碰撞爆炸效果的实现, 普通伤害在元素中实现
-        public virtual void takeEffectAfterHitObject()
-        {
-
-        }
 
     }
 
@@ -120,6 +116,35 @@ namespace ElementChaos
             bulletRemoveList = null;
         }
 
+        //着火特效
+        static public void takeHitEffect(Bullet b)
+        {
+            var posList = new List<(int, int)>();
+            for (int r = 0; r <3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    var new_v = b.pos_v-1+r;
+                    var new_h = b.pos_h-1+c;
+                    if (!gsm.stage.isValidPos(b.pos_v-1+r, b.pos_h-1+c))
+                        continue;
+                    
+                    if (gsm.stage.isAirAt(new_v, new_h))
+                    {
+                        posList.Add((new_v, new_h));
+                    }
+                }
+            }
+            int n = 3, m = 0;
+            foreach (var p in posList)
+            {
+                if (m == n)
+                    break;
+                gsm.stage.GenerateNewElement(GameDef.GameObj.Fire, p.Item1, p.Item2, 3);
+                m++;
+            }
+        }
+
         // 子弹飞行逻辑
         static public bool checkSingleBulletcollision(Bullet b)
         {
@@ -148,6 +173,7 @@ namespace ElementChaos
                 {
                     beHitElement.beHitByBullet(b);
                 }
+                takeHitEffect(b);
                 return isHit;
             }
 
@@ -168,10 +194,17 @@ namespace ElementChaos
             {
                 if (!gsm.stage.isValidPos(pos_v, pos_h-idx))
                 {
+                    b.pos_h -= distance;
                     return true;
                 }
                 
-                if (gsm.stage.running_stage_map[pos_v, pos_h-idx] != GameDef.GameObj.Air)
+                if (gsm.stage.running_stage_map[pos_v, pos_h-idx] == GameDef.GameObj.FlowWater)
+                {
+                    return false;
+                }
+
+
+                if (gsm.stage.running_stage_map[pos_v, pos_h-idx] != GameDef.GameObj.Air )
                 {
                     if (Tools.isElment(gsm.stage.running_stage_map[pos_v, pos_h-idx]))
                     {
@@ -198,6 +231,11 @@ namespace ElementChaos
                 if (!gsm.stage.isValidPos(pos_v, pos_h+idx))
                 {
                     return true;
+                }
+                if (gsm.stage.running_stage_map[pos_v, pos_h+idx] == GameDef.GameObj.FlowWater)
+                {
+                    b.pos_h += distance;
+                    return false;
                 }
                 
                 if (gsm.stage.running_stage_map[pos_v, pos_h+idx] != GameDef.GameObj.Air)
@@ -226,6 +264,12 @@ namespace ElementChaos
                 {
                     return true;
                 }
+
+                if (gsm.stage.running_stage_map[pos_v - idx, pos_h] == GameDef.GameObj.FlowWater)
+                {
+                    b.pos_v -= distance;
+                    return false;
+                }
                 
                 if (gsm.stage.running_stage_map[pos_v-idx, pos_h] != GameDef.GameObj.Air)
                 {
@@ -252,6 +296,12 @@ namespace ElementChaos
                 if (!gsm.stage.isValidPos(pos_v+idx, pos_h))
                 {
                     return true;
+                }
+
+                if (gsm.stage.running_stage_map[pos_v + idx, pos_h] == GameDef.GameObj.FlowWater)
+                {
+                    b.pos_v += distance;
+                    return false;
                 }
                 
                 if (gsm.stage.running_stage_map[pos_v+idx, pos_h] != GameDef.GameObj.Air)

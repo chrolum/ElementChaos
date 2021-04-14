@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Security.Cryptography;
 
 namespace ElementChaos
 {
@@ -27,5 +29,6 @@ namespace ElementChaos
         {
             return packNum % PackOffset;
         }
+
     }
 }
