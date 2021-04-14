@@ -40,7 +40,7 @@ namespace ElementChaos
 		public void selectStage()
 		{
 			//TODO
-			this.stage = StageManager.GetStageByIdx(0);
+			this.stage = StageManager.GetNextStage();
 			this.stage.reload();
 			this.gsm.stage = this.stage;
 			playerStatusUI.reset();
@@ -155,6 +155,7 @@ namespace ElementChaos
 		// draw method
 		public void DrawMap()
 		{
+
 			for (int r = 0; r < this.stage.v_size; r++)
 			{
 				for (int c = 0; c < this.stage.h_size; c++)
@@ -172,20 +173,25 @@ namespace ElementChaos
 				}
 			}
 
-			//目标点额外绘制
+			//目标点额外绘制 先绘制目标点
 			var keyList = stage.goalDict.Keys;
 			foreach (var k in keyList)
 			{
 				var v = Tools.UnPackCoords_V(k);
 				var h = Tools.UnPackCoords_H(k);
-				draw_buffer[v,h] = GameDef.GlobalData.output[GameDef.GameObj.Goal];
+
+				// 目标点上存在非空元素，只改变颜色
+				if (this.stage.running_stage_map[v, h] == GameDef.GameObj.Air)
+				{
+					draw_buffer[v,h] = GameDef.GlobalData.output[GameDef.GameObj.Goal];
+				}
 				color_buffer[v, h] = GameDef.GlobalData.outputForeColor[GameDef.GameObj.Goal];
 			}
 		}
 
 		public void DrawPlayer()
 		{
-			draw_buffer[stage.player.pos_v, stage.player.pos_h] = GameDef.GlobalData.output[GameDef.GameObj.Player];
+			draw_buffer[stage.player.pos_v, stage.player.pos_h] = GameDef.GlobalData.playerTowardOutPut[this.stage.player.towards];
 		}
 
 		//TODO: UI组件？

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ElementChaos
 {
@@ -45,23 +46,20 @@ namespace ElementChaos
                         obj = GameDef.GlobalData.char2GameObjDict[c];
                     }
 
-
-                    if (obj == GameDef.GameObj.Goal)
-                    {
-                        stage.goalDict[Tools.PackCoords(v:v_idx, h:h_idx)] = false;
-                        h_idx++;
-                        continue;
-                    }
-
+                    //player 和 goal不往地图上写
                     if (obj == GameDef.GameObj.Player)
                     {
                         stage.player = new Player(h_idx, v_idx);
                     }
-                    //player 不往地图上写
+                    else if (obj == GameDef.GameObj.Goal)
+                    {
+                        stage.goalDict[Tools.PackCoords(v:v_idx, h:h_idx)] = false;
+                    }
                     else
                     {
                         stage.running_stage_map[v_idx, h_idx] = obj;
                     }
+
                     stage.orignal_stage_map[v_idx, h_idx] = obj;
                     h_idx++;
                 }
@@ -112,6 +110,7 @@ namespace ElementChaos
             activateElement.Clear();
             clearElementMap();
             resetRunningStage();
+            resetGoalDict();
             for (int r = 0; r < v_size; r++)
             {
                 for (int c = 0; c < h_size; c++)
@@ -147,6 +146,11 @@ namespace ElementChaos
                     if (orignal_stage_map[r, c] == GameDef.GameObj.Player)
                     {
                         this.player = new Player(c, r);
+                        running_stage_map[r, c] = GameDef.GameObj.Air;
+                    }
+                    else if (orignal_stage_map[r, c] == GameDef.GameObj.Goal)
+                    {
+                        running_stage_map[r, c] = GameDef.GameObj.Air;
                     }
                     else
                     {
@@ -161,7 +165,7 @@ namespace ElementChaos
             if (this.goalDict.Count == 0)
                 return;
             
-            var keyList = goalDict.Keys;
+            var keyList = goalDict.Keys.ToList();
             foreach (var k in keyList)
             {
                 goalDict[k] = false;

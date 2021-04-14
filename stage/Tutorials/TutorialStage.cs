@@ -1,6 +1,7 @@
 using System;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Diagnostics;
 
@@ -42,12 +43,12 @@ namespace ElementChaos
         public override bool checkWin()
         {
             
-            var keyLists = goalDict.Keys;
+            var keyLists = goalDict.Keys.ToList();
             var p = keyLists[0];
 
             var v = Tools.UnPackCoords_V(p);
             var h = Tools.UnPackCoords_H(p);
-            return v == player.pos_v && h == Player.pos_h;
+            return v == player.pos_v && h == player.pos_h;
         }
     }
 

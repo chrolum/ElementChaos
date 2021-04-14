@@ -187,6 +187,14 @@ namespace GameDef
 			{GameDef.Towards.Up, GameDef.WaterType.Up},
 		};
 
+		public readonly static Dictionary<GameDef.Towards, char> playerTowardOutPut = new Dictionary<Towards, char>()
+		{
+			{GameDef.Towards.Left, '←'},
+			{GameDef.Towards.Right, '→'},
+			{GameDef.Towards.Up, '↑'},
+			{GameDef.Towards.Down, '↓'},
+		};
+
 		public readonly static Dictionary<GameDef.GameObj, SkillType> SkillMap = new Dictionary<GameObj, SkillType>()
 		{
 			{GameObj.Fire, GameDef.SkillType.FlameBomb}

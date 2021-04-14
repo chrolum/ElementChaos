@@ -70,7 +70,7 @@ namespace ElementChaos
 
 			this.towards = towards;
 
-			LiftUpElement(this.pos_v + dv, this.pos_h + dh);
+			LiftUpElement();
 
 			if (!gsm.canMoveTo(this.pos_v + dv, this.pos_h + dh))
 				return;

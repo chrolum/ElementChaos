@@ -13,6 +13,14 @@ namespace ElementChaos
             Game newGame = new Game();
             //select stage
             SELECTSTAGE:
+            if (StageManager.currStageIdx == StageManager.aviableStageList.Count)
+            {
+                newGame.gameMsgUI.reset();
+                newGame.gameMsgUI.publishMsg("你已通关全部关卡");
+                newGame.gameMsgUI.publishMsg("To be Continue");
+                newGame.gameMsgUI.publishMsg("按任意键重玩");
+                StageManager.currStageIdx = 0;
+            }
             newGame.selectStage();
             // stage main loop
             while(true)

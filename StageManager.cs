@@ -9,7 +9,7 @@ namespace ElementChaos
     class StageManager
     {
         public static int currStageIdx = 0;
-        static List<Stage> aviableStageList = new List<Stage>();
+        public static List<Stage> aviableStageList = new List<Stage>();
 
         public static void LoadAllStage()
         {
@@ -31,8 +31,8 @@ namespace ElementChaos
 
             aviableStageList.Add(stage4);
             aviableStageList.Add(stage3);
-            aviableStageList.Add(stage2);
             aviableStageList.Add(stage1);
+            // aviableStageList.Add(stage2);
 
         }
 
